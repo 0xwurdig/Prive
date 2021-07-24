@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prive/size_config.dart';
 
 class ConfirmationSlider extends StatefulWidget {
   /// Height of the slider. Defaults to 70.
@@ -43,8 +44,8 @@ class ConfirmationSlider extends StatefulWidget {
 
   const ConfirmationSlider(
       {Key key,
-      this.height = 70,
-      this.width = 300,
+      @required this.height,
+      @required this.width,
       this.backgroundColor = Colors.white,
       this.backgroundColorEnd,
       this.foregroundColor = Colors.blueAccent,
@@ -151,7 +152,7 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
       // padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
         borderRadius: widget.backgroundShape ??
-            BorderRadius.all(Radius.circular(widget.height)),
+            BorderRadius.all(Radius.circular((widget.height))),
         color: widget.backgroundColorEnd != null
             ? this.calculateBackground()
             : widget.backgroundColor,
@@ -160,7 +161,7 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
       child: Stack(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(left: 50),
+            padding: EdgeInsets.only(left: getWidth(50)),
             child: Center(
               child: Text(
                 widget.text,
@@ -171,7 +172,7 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
           Positioned(
             left: widget.height / 2,
             child: AnimatedContainer(
-              height: widget.height - 10,
+              height: widget.height - getHeight(10),
               width: getPosition(),
               duration: Duration(milliseconds: _duration),
               curve: Curves.ease,

@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prive/app_theme.dart';
 import 'package:prive/widgets/cropImage.dart';
-import 'package:prive/widgets/widgets.dart';
 import 'package:screenshot/screenshot.dart';
 
 class GetImage extends StatefulWidget {

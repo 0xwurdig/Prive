@@ -1,14 +1,12 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
-import 'package:prive/models/user.dart';
+import 'package:prive/size_config.dart';
 import 'package:prive/widgets/recent_chats.dart';
 import 'package:prive/widgets/sildeToConfirm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController name = new TextEditingController();
   Controller controller = Get.find();
   List users = [];
+  List asd = [];
   String pin;
   bool owner = false;
   bool limit = true;
@@ -52,32 +51,34 @@ class _HomePageState extends State<HomePage> {
     TextEditingController pin = new TextEditingController();
     Get.bottomSheet(
       Container(
-        padding: EdgeInsets.symmetric(vertical: 20),
-        height: 300,
+        padding: EdgeInsets.symmetric(vertical: getHeight(20)),
+        height: getHeight(300),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              topLeft: Radius.circular(getText(20)),
+              topRight: Radius.circular(getText(20))),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 300),
+              constraints: BoxConstraints(maxWidth: getWidth(300)),
               child: Text(
                 "Enter your Security Pin",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24),
+                style: TextStyle(fontSize: getText(24)),
               ),
             ),
             ninput("Pin", pin, true),
             ConfirmationSlider(
-              backgroundShape: BorderRadius.circular(10),
-              width: 260,
+              height: getHeight(70),
+              backgroundShape: BorderRadius.circular(getText(10)),
+              width: getWidth(260),
               foregroundColor: Colors.red[800],
-              foregroundShape: BorderRadius.circular(10),
+              foregroundShape: BorderRadius.circular(getText(10)),
               text: "DELETE",
-              textStyle: TextStyle(fontSize: 20),
+              textStyle: TextStyle(fontSize: getText(20)),
               onConfirmation: () async {
                 if (pin.text == controller.user.pin) {
                   try {
@@ -141,6 +142,8 @@ class _HomePageState extends State<HomePage> {
       });
       if (users != arr)
         setState(() {
+          print("users is changed");
+          asd = snapshots.data()['users'];
           users = arr;
           if (users.length != snapshots.data()['limit']) limit = false;
           if (pin != snapshots.data()['auth'])
@@ -149,6 +152,7 @@ class _HomePageState extends State<HomePage> {
             owner = true;
           if (snapshots.data()['revoked']) revoked = true;
         });
+      print(users);
     }).onError((_) {
       print("error");
     });
@@ -159,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: MyTheme.kPrimaryColor,
       // appBar: AppBar(
-      //   toolbarHeight: 150,
+      //   toolbarHeight: getHeight(15)0,
       //   leading: GestureDetector(
       //               onTap: () {
       //                 return Drawer(
@@ -176,7 +180,7 @@ class _HomePageState extends State<HomePage> {
       //     child: Text(
       //       'privé',
       //       style: GoogleFonts.bebasNeue(
-      //           fontSize: 50, letterSpacing: 4, color: Colors.white),
+      //           fontSize: getText(50), letterSpacing: 4, color: Colors.white),
       //     ),
       //   ),
       //   actions: [
@@ -188,24 +192,27 @@ class _HomePageState extends State<HomePage> {
       //   ],
       // ),
       drawer: Container(
-        height: 600,
-        width: 300,
+        height: getHeight(500),
+        width: getWidth(300),
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-              bottomRight: Radius.circular(30),
-              topRight: Radius.circular(30),
+              bottomRight: Radius.circular(getText(30)),
+              topRight: Radius.circular(getText(30)),
             )),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              height: 60,
+              height: getHeight(60),
             ),
             Text("privé Guard",
                 style: TextStyle(
-                    color: Colors.black, fontSize: 30, fontFamily: "Neptune")),
+                    color: Colors.black,
+                    fontSize: getText(30),
+                    fontFamily: "Neptune")),
             SizedBox(
-              height: 40,
+              height: getHeight(40),
             ),
             if (pin != null)
               GestureDetector(
@@ -222,25 +229,25 @@ class _HomePageState extends State<HomePage> {
                 child: Text(
                   pin,
                   style: GoogleFonts.bebasNeue(
-                      fontSize: 50,
+                      fontSize: getText(50),
                       letterSpacing: 15,
                       color: Color(0xff0f3659)),
                 ),
               ),
             SizedBox(
-              height: 10,
+              height: getHeight(10),
             ),
             Text(
               "tap to Change",
               style: TextStyle(
-                  fontSize: 16, letterSpacing: 2, color: Colors.black),
+                  fontSize: getText(16), letterSpacing: 2, color: Colors.black),
             ),
             SizedBox(
-              height: 200,
+              height: getHeight(100),
             ),
             GestureDetector(
               onTap: () async {
-                if (!revoked) {
+                if (!revoked && users.length > 0) {
                   try {
                     await _firestore
                         .collection(controller.user.org)
@@ -254,7 +261,9 @@ class _HomePageState extends State<HomePage> {
                         .then((snapshot) {
                       for (DocumentSnapshot doc in snapshot.docs) {
                         if (doc.reference.toString() !=
-                            "DocumentReference<Map<String, dynamic>>(${controller.user.org}/prive)")
+                                "DocumentReference<Map<String, dynamic>>(${controller.user.org}/prive)" &&
+                            doc.reference.toString() !=
+                                "DocumentReference<Map<String, dynamic>>(${controller.user.org}/${controller.user.name})")
                           doc.reference.delete();
                       }
                     });
@@ -270,33 +279,33 @@ class _HomePageState extends State<HomePage> {
                   }
                 }
               },
-              child: !revoked
+              child: !revoked && users.length > 0
                   ? Container(
-                      height: 80,
-                      width: 200,
+                      height: getHeight(80),
+                      width: getWidth(200),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(30),
-                            topLeft: Radius.circular(30),
+                            bottomRight: Radius.circular(getText(30)),
+                            topLeft: Radius.circular(getText(30)),
                           ),
                           border: Border.all(color: Colors.red[900], width: 5)),
                       child: Center(
                         child: Text("REVOKE",
                             style: TextStyle(
                                 color: Colors.red[900],
-                                fontSize: 30,
+                                fontSize: getText(30),
                                 fontFamily: "Neptune")),
                       ),
                     )
                   : Container(
-                      height: 80,
-                      width: 200,
+                      height: getHeight(80),
+                      width: getWidth(200),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(30),
-                            topLeft: Radius.circular(30),
+                            bottomRight: Radius.circular(getText(30)),
+                            topLeft: Radius.circular(getText(30)),
                           ),
                           border:
                               Border.all(color: Colors.grey[500], width: 5)),
@@ -304,24 +313,29 @@ class _HomePageState extends State<HomePage> {
                         child: Text("REVOKED",
                             style: TextStyle(
                                 color: Colors.grey[500],
-                                fontSize: 30,
+                                fontSize: getText(30),
                                 fontFamily: "Neptune")),
                       ),
                     ),
-            )
+            ),
+            SizedBox(
+              height: getHeight(60),
+            ),
           ],
         ),
       ),
       body: Column(
         children: [
           Container(
-            height: 150,
+            height: getHeight(150),
             padding: EdgeInsets.only(top: 80),
             child: Center(
               child: Text(
                 'privé',
                 style: GoogleFonts.bebasNeue(
-                    fontSize: 50, letterSpacing: 4, color: Colors.white),
+                    fontSize: getText(50),
+                    letterSpacing: 4,
+                    color: Colors.white),
               ),
             ),
           ),
@@ -347,12 +361,12 @@ class _HomePageState extends State<HomePage> {
                       Get.bottomSheet(
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 20),
-                          height: 300,
+                          height: getHeight(300),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20)),
+                                topLeft: Radius.circular(getText(20)),
+                                topRight: Radius.circular(getText(20))),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -362,17 +376,20 @@ class _HomePageState extends State<HomePage> {
                                 child: Text(
                                   "Enter your Security Pin",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 24),
+                                  style: TextStyle(fontSize: getText(24)),
                                 ),
                               ),
                               ninput("Pin", name, true),
                               ConfirmationSlider(
-                                backgroundShape: BorderRadius.circular(10),
-                                width: 260,
+                                height: getHeight(70),
+                                backgroundShape:
+                                    BorderRadius.circular(getText(10)),
+                                width: getWidth(260),
                                 foregroundColor: MyTheme.kPrimaryColor,
-                                foregroundShape: BorderRadius.circular(10),
+                                foregroundShape:
+                                    BorderRadius.circular(getText(10)),
                                 text: "Log Out",
-                                textStyle: TextStyle(fontSize: 20),
+                                textStyle: TextStyle(fontSize: getText(20)),
                                 onConfirmation: () {
                                   if (name.text == controller.user.pin) {
                                     prefs.clear();
@@ -402,48 +419,28 @@ class _HomePageState extends State<HomePage> {
                 ],
               )),
           Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  )),
               child: Container(
-                  child: users != []
-                      ? ListView(
-                          children: users.map((e) {
-                            return RecentChats(
-                              conversation: e,
-                              function: deleteContact,
-                            );
-                          }).toList(),
-                        )
-                      : Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              "Oops! You have no contacts added yet, add them?",
-                              style: TextStyle(fontSize: 24),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        )),
-            ),
-          )
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(getText(30)),
+                  topRight: Radius.circular(getText(30)),
+                )),
+            child: Container(child: chat(users)),
+          ))
         ],
       ),
       floatingActionButton: !limit
           ? Padding(
               padding: const EdgeInsets.all(10),
               child: SizedBox(
-                height: 70,
-                width: 70,
+                height: getHeight(50),
+                width: getWidth(70),
                 child: FloatingActionButton(
                   backgroundColor: Colors.blueGrey[900],
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
+                      borderRadius: BorderRadius.circular(getText(20))),
                   child: Icon(
                     Icons.add,
                     color: Colors.white,
@@ -453,28 +450,31 @@ class _HomePageState extends State<HomePage> {
                     Get.bottomSheet(
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 20),
-                        height: 300,
+                        height: getHeight(300),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20)),
+                              topLeft: Radius.circular(getText(20)),
+                              topRight: Radius.circular(getText(20))),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               "Enter the Contact Name",
-                              style: TextStyle(fontSize: 24),
+                              style: TextStyle(fontSize: getText(24)),
                             ),
                             ninput("Name", name, false),
                             ConfirmationSlider(
-                              backgroundShape: BorderRadius.circular(10),
-                              width: 260,
+                              backgroundShape:
+                                  BorderRadius.circular(getText(10)),
+                              width: getWidth(260),
+                              height: getHeight(70),
                               foregroundColor: MyTheme.kPrimaryColor,
-                              foregroundShape: BorderRadius.circular(10),
+                              foregroundShape:
+                                  BorderRadius.circular(getText(10)),
                               text: "Add",
-                              textStyle: TextStyle(fontSize: 20),
+                              textStyle: TextStyle(fontSize: getText(20)),
                               onConfirmation: () async {
                                 if (name.text.length >= 3) {
                                   bool a = await addContact(name.text);
@@ -518,34 +518,59 @@ class _HomePageState extends State<HomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
+
+  Widget chat(List users) {
+    return users.length > 0
+        ? ListView(
+            children: users.map((e) {
+              print(e);
+              return RecentChats(
+                conversation: e,
+                function: deleteContact,
+              );
+            }).toList(),
+          )
+        : Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                "Oops! You have no contacts added yet, add them?",
+                style: TextStyle(fontSize: getText(24), color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+  }
 }
 
 Widget ninput(String a, TextEditingController b, bool obscure) {
   return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      height: 80,
-      width: 300,
+      height: getHeight(80),
+      width: getWidth(300),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14),
-        height: 60,
+        height: getHeight(60),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(getText(20)),
           border: Border.all(
             //                    <--- top side
             color: Colors.black,
-            width: 3.0,
+            width: getWidth(3.0),
           ),
         ),
-        child: TextField(
-          obscureText: obscure ? true : false,
-          obscuringCharacter: "#",
-          textAlign: TextAlign.center,
-          controller: b,
-          style: TextStyle(fontSize: 30, letterSpacing: 5),
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: a,
-            hintStyle: TextStyle(color: Colors.grey[500], letterSpacing: 0),
+        child: Center(
+          child: TextField(
+            obscureText: obscure ? true : false,
+            obscuringCharacter: "#",
+            textAlign: TextAlign.center,
+            controller: b,
+            style: TextStyle(fontSize: getText(30), letterSpacing: 5),
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: a,
+              hintStyle: TextStyle(color: Colors.grey[500], letterSpacing: 0),
+            ),
           ),
         ),
       ));

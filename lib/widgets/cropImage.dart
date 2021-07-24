@@ -1,10 +1,9 @@
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:get/get.dart';
 import 'package:prive/app_theme.dart';
+import 'package:prive/size_config.dart';
 
 class CropImage extends StatefulWidget {
   CropImage({this.child, this.image, this.function});
@@ -15,11 +14,11 @@ class CropImage extends StatefulWidget {
   _CropImageState createState() => _CropImageState();
 }
 
-const ballDiameter = 10.0;
+double ballDiameter = getText(10);
 
 class _CropImageState extends State<CropImage> {
-  double height = 100;
-  double width = 200;
+  double height = getHeight(100);
+  double width = getWidth(200);
   bool isCorner = false;
   double ratio;
   double top = 0;
@@ -55,7 +54,7 @@ class _CropImageState extends State<CropImage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            height: 10,
+            height: getHeight(10),
           ),
           ratio != null
               ? Container(
@@ -82,7 +81,7 @@ class _CropImageState extends State<CropImage> {
                             width: width,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                width: 2,
+                                width: getWidth(2),
                                 color: Colors.white70,
                               ),
                               borderRadius: BorderRadius.circular(0.0),
@@ -232,70 +231,6 @@ class _CropImageState extends State<CropImage> {
                           handlerWidget: HandlerWidget.HORIZONTAL,
                         ),
                       ),
-                      // center center
-                      // Positioned(
-                      //   top: top + height / 2 - ballDiameter / 2,
-                      //   left: left + width / 2 - ballDiameter / 2,
-                      //   child: CenterManipulate(
-                      //     onDrag: (dx, dy) {
-                      //       setState(() {
-                      //         isCorner = false;
-                      //         top = top + dy;
-                      //         left = left + dx;
-                      //       });
-                      //     },
-                      //     handlerWidget: HandlerWidget.VERTICAL,
-                      //   ),
-                      // ),
-                      // Positioned(
-                      //     bottom: 10,
-                      //     left: 10,
-                      //     child: IconButton(
-                      //         onPressed: () async {
-                      //           await FlutterNativeImage.cropImage(
-                      //                   widget.image.path,
-                      //                   (left *
-                      //                           (imageW /
-                      //                               MediaQuery.of(context)
-                      //                                   .size
-                      //                                   .width))
-                      //                       .toInt(),
-                      //                   (top *
-                      //                           (imageH /
-                      //                               (ratio *
-                      //                                   MediaQuery.of(context)
-                      //                                       .size
-                      //                                       .width)))
-                      //                       .toInt(),
-                      //                   ((width /
-                      //                               MediaQuery.of(context)
-                      //                                   .size
-                      //                                   .width) *
-                      //                           imageW)
-                      //                       .toInt(),
-                      //                   ((height /
-                      //                               (ratio *
-                      //                                   MediaQuery.of(context)
-                      //                                       .size
-                      //                                       .width)) *
-                      //                           imageH)
-                      //                       .toInt())
-                      //               .then((value) async {
-                      //             asd(context, value);
-                      //           });
-                      //         },
-                      //         // onPressed: () async {
-                      //         //   ImageProperties asd =
-                      //         //       await FlutterNativeImage.getImageProperties(
-                      //         //           widget.image.path);
-                      //         //   print(asd.height);
-                      //         //   print(((height /
-                      //         //               (ratio *
-                      //         //                   MediaQuery.of(context).size.width)) *
-                      //         //           imageH)
-                      //         //       .toInt());
-                      //         // },
-                      //         icon: Icon(Icons.ac_unit)))
                     ],
                   ),
                 )
@@ -308,18 +243,18 @@ class _CropImageState extends State<CropImage> {
                     Get.back();
                   },
                   child: Container(
-                      width: 100,
-                      padding: EdgeInsets.only(bottom: 20),
+                      width: getWidth(100),
+                      padding: EdgeInsets.only(bottom: getHeight(20)),
                       // color: Colors.white,
                       child: Center(
                         child: Text(
                           'CANCEL',
-                          style: MyTheme.bodyTextMessage
-                              .copyWith(fontSize: 16, color: Colors.white),
+                          style: MyTheme.bodyTextMessage.copyWith(
+                              fontSize: getText(16), color: Colors.white),
                         ),
                       ))),
               SizedBox(
-                width: 10,
+                width: getWidth(10),
               ),
               GestureDetector(
                   onTap: () async {
@@ -350,14 +285,14 @@ class _CropImageState extends State<CropImage> {
                     });
                   },
                   child: Container(
-                      width: 100,
-                      padding: EdgeInsets.only(bottom: 20),
+                      width: getWidth(100),
+                      padding: EdgeInsets.only(bottom: getHeight(20)),
                       // color: Colors.white,
                       child: Center(
                         child: Text(
                           'DONE',
-                          style: MyTheme.bodyTextMessage
-                              .copyWith(fontSize: 16, color: Colors.white),
+                          style: MyTheme.bodyTextMessage.copyWith(
+                              fontSize: getText(16), color: Colors.white),
                         ),
                       ))),
             ],

@@ -3,24 +3,21 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
-// import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
-// import 'package:photo_view/photo_view.dart';
 import 'package:prive/counterState.dart';
 import 'package:path/path.dart';
-import 'package:prive/models/message_model.dart';
 import 'package:prive/screens/pick_image.dart';
+import 'package:prive/size_config.dart';
 import 'package:prive/widgets/conversation.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoom extends StatefulWidget {
   final String conversation;
-  const ChatRoom({Key key, @required this.conversation});
+  final function;
+  const ChatRoom({Key key, @required this.conversation, this.function});
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
@@ -31,19 +28,6 @@ class _ChatRoomState extends State<ChatRoom> {
   StreamSubscription streamSubscription;
   List messages = [];
   String contact = "";
-  // Future<void> _pickImage() => Get.to(() {
-  //       return ImageEditor.ImageEditorPro(
-  //         appBarColor: Colors.black87,
-  //         bottomBarColor: Colors.black87,
-  //         pathSave: null,
-  //       );
-  //     }).then((selected) {
-  //       if (selected != null) {
-  //         uploadFile(File(selected.path));
-  //       }
-  //     }).catchError((er) {
-  //       print(er);
-  //     });
   @override
   void initState() {
     setState(() {
@@ -54,6 +38,13 @@ class _ChatRoomState extends State<ChatRoom> {
     unReads();
     super.initState();
   }
+
+  // delete(String conv, String cont) async {
+  //   await _firestore.collection("${controller.user.org}").doc('prive').update({
+  //     "users": FieldValue.arrayRemove([cont])
+  //   });
+  //   await _firestore.collection("${controller.user.org}").doc('$conv').delete();
+  // }
 
   @override
   void dispose() {
@@ -66,40 +57,30 @@ class _ChatRoomState extends State<ChatRoom> {
         .collection("${controller.user.org}")
         .doc('${widget.conversation}')
         .snapshots()
-        .listen((snapshots) {
-      if (messages != snapshots.data()['messages']) {
-        setState(() {
-          messages = snapshots.data()['messages'].map((msg) {
-            if (msg['status'] == 0 && msg['from'] != controller.user.name)
-              msg['status'] = 1;
-            return msg;
-          }).toList();
-        });
+        .listen((snapshots) async {
+      if (snapshots.data() != null) {
+        if (messages != snapshots.data()['messages']) {
+          setState(() {
+            messages = snapshots.data()['messages'].map((msg) {
+              if (msg['status'] == 0 && msg['from'] != controller.user.name)
+                msg['status'] = 1;
+              return msg;
+            }).toList();
+          });
+        }
+        await _firestore
+            .collection("${controller.user.org}")
+            .doc('${widget.conversation}')
+            .update({"messages": messages});
+      } else {
+        await _firestore
+            .collection("${controller.user.org}")
+            .doc('${widget.conversation}')
+            .set({"messages": []});
       }
-      _firestore
-          .collection("${controller.user.org}")
-          .doc('${widget.conversation}')
-          .update({"messages": messages});
     });
   }
 
-  // Future<void> _cropImage(var image) async {
-  //   File cropped = await ImageCropper.cropImage(
-  //       sourcePath: image.path,
-  //       androidUiSettings: AndroidUiSettings(
-  //           toolbarColor: Color(0xFFD4B132),
-  //           toolbarTitle: 'Crop',
-  //           toolbarWidgetColor: Colors.white));
-  //   setState(() {
-  //     if (cropped != null) {
-  //       file = File(cropped.path);
-  //     } else {
-  //       print('No image selected.');
-  //     }
-  //   });
-  // }
-
-  // uploadFile(value);
   Controller controller = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -115,8 +96,9 @@ class _ChatRoomState extends State<ChatRoom> {
                 bottomRight: Radius.circular(20),
               ),
             ),
-            height: 100,
-            padding: EdgeInsets.symmetric(vertical: 7, horizontal: 20),
+            height: getHeight(100),
+            padding: EdgeInsets.symmetric(
+                vertical: getHeight(7), horizontal: getWidth(20)),
             child: Center(
                 child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -126,20 +108,25 @@ class _ChatRoomState extends State<ChatRoom> {
                   child: Icon(
                     Icons.arrow_back_ios_outlined,
                     color: Colors.white,
-                    size: 20,
+                    size: getText(20),
                   ),
                 ),
                 Text(
                   contact[0].toUpperCase() + contact.substring(1),
                   style: GoogleFonts.montserrat(
-                      fontSize: 28, letterSpacing: 4, color: Colors.white),
+                      fontSize: getText(28),
+                      letterSpacing: getText(4),
+                      color: Colors.white),
                 ),
-                Text(
-                  "...",
-                  style: TextStyle(
+                GestureDetector(
+                  onTap: () {
+                    widget.function(contact);
+                    Get.back();
+                  },
+                  child: Icon(
+                    Icons.delete_outline,
                     color: Colors.white,
-                    fontSize: 30,
-                    letterSpacing: 3,
+                    size: getText(25),
                   ),
                 )
               ],
@@ -147,25 +134,24 @@ class _ChatRoomState extends State<ChatRoom> {
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
               child: messages != null
                   ? Conversation(messages: List.from(messages.reversed))
                   : Container(),
             ),
           ),
           Container(
-            padding: EdgeInsets.only(bottom: 20, left: 20, right: 20),
-            // height: 80,
-            // color: Colors.green,
+            padding: EdgeInsets.only(
+                bottom: getHeight(20), left: getWidth(20), right: getWidth(20)),
             child: Row(
               children: [
                 Expanded(
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14),
-                    height: 60,
+                    padding: EdgeInsets.symmetric(horizontal: getWidth(14)),
+                    height: getHeight(60),
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(getText(30)),
                     ),
                     child: Row(
                       children: [
@@ -216,10 +202,10 @@ class _ChatRoomState extends State<ChatRoom> {
                     }
                   },
                   child: CircleAvatar(
-                    radius: 30,
+                    radius: getWidth(30),
                     backgroundColor: MyTheme.kAccentColor,
                     child: Container(
-                      padding: EdgeInsets.only(left: 4),
+                      padding: EdgeInsets.only(left: getWidth(4)),
                       child: Icon(
                         Icons.send,
                         color: Colors.white,
@@ -234,15 +220,6 @@ class _ChatRoomState extends State<ChatRoom> {
       ),
     );
   }
-
-  // Future selectFile() async {
-  //   final result = await FilePicker.platform.pickFiles(allowMultiple: false);
-
-  //   if (result == null) return;
-  //   final path = result.files.single.path;
-
-  //   setState(() => file = File(path));
-  // }
 
   Future uploadFile(File file, String text) async {
     Map msg;

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
 import 'package:prive/models/user.dart';
 import 'package:prive/screens/login.dart';
+import 'package:prive/size_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
@@ -45,42 +46,42 @@ class _SetPinState extends State<SetPin> {
           Expanded(
             child: SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.only(top: 80),
+                padding: EdgeInsets.only(top: getHeight(80)),
                 child: Column(
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 40),
+                      padding: EdgeInsets.symmetric(horizontal: getWidth(40)),
                       child: Center(
                         child: Text("Please set your security pin ,",
                             style: TextStyle(
                                 fontFamily: "Elianto",
-                                fontSize: 40,
+                                fontSize: getText(40),
                                 color: MyTheme.kPrimaryColor)),
                       ),
                     ),
                     Container(
                       alignment: Alignment.centerLeft,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: getWidth(40), vertical: getHeight(20)),
                       child: Text("$employee",
                           style: TextStyle(
                               fontFamily: "Elianto",
-                              fontSize: 40,
+                              fontSize: getText(40),
                               color: MyTheme.kPrimaryColor)),
                     ),
                     SizedBox(
-                      height: 50,
+                      height: getHeight(50),
                     ),
                     tinput("Enter PIN", pin1),
                     SizedBox(
-                      height: 50,
+                      height: getHeight(50),
                     ),
                     SizedBox(
-                      height: 50,
+                      height: getHeight(50),
                     ),
                     tinput("Re-enter PIN", pin2),
                     SizedBox(
-                      height: 50,
+                      height: getHeight(50),
                     ),
                   ],
                 ),
@@ -102,10 +103,7 @@ class _SetPinState extends State<SetPin> {
               controller.add(user);
               pin1.text == pin2.text
                   ? a
-                      ? Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => LogIn()),
-                        )
+                      ? Get.off(() => LogIn())
                       : Get.rawSnackbar(
                           messageText: Text(
                               "Error! Check your connection and try again",
@@ -117,19 +115,19 @@ class _SetPinState extends State<SetPin> {
                           style: TextStyle(color: Colors.black)));
             },
             child: Container(
-              height: 120,
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              height: getHeight(120),
+              padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
               decoration: BoxDecoration(
                   color: MyTheme.kPrimaryColor,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                    topLeft: Radius.circular(getText(30)),
+                    topRight: Radius.circular(getText(30)),
                   )),
               child: Center(
                 child: Text("Set Pin",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 30,
+                        fontSize: getText(30),
                         fontFamily: "Elianto")),
               ),
             ),
@@ -142,12 +140,12 @@ class _SetPinState extends State<SetPin> {
 
 Widget tinput(String a, TextEditingController b) {
   return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      height: 80,
+      padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
+      height: getHeight(80),
       width: 300,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14),
-        height: 60,
+        padding: EdgeInsets.symmetric(horizontal: getWidth(14)),
+        height: getHeight(60),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -161,7 +159,7 @@ Widget tinput(String a, TextEditingController b) {
           obscuringCharacter: "#",
           textAlign: TextAlign.center,
           controller: b,
-          style: TextStyle(fontSize: 30, letterSpacing: 5),
+          style: TextStyle(fontSize: getText(30), letterSpacing: 5),
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: a,

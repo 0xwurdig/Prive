@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
-import 'package:prive/models/user.dart';
 import 'package:prive/screens/home_page.dart';
+import 'package:prive/size_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,16 +17,8 @@ class _LogInState extends State<LogIn> {
   TextEditingController pin1 = TextEditingController();
   Controller controller = Get.find();
   String name;
-  // @override
-  // void initState() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   User user = new User();
-  //   user.org = prefs.getStringList("det")[0];
-  //   user.name = prefs.getStringList("det")[0];
-  //   user.pin = prefs.getStringList("det")[0];
-  //   super.initState();
-  // }
-
+  int pin;
+  SharedPreferences prefs;
   @override
   void initState() {
     super.initState();
@@ -33,11 +26,22 @@ class _LogInState extends State<LogIn> {
   }
 
   void getPrefs() async {
-    // final prefs = await SharedPreferences.getInstance();
-    // User user = new User();
-    // user.org = prefs.getStringList("det")[0];
-    // user.name = prefs.getStringList("det")[1];
-    // user.pin = prefs.getStringList("det")[2];
+    prefs = await SharedPreferences.getInstance();
+    await FirebaseFirestore.instance
+        .collection("${controller.user.org}")
+        .doc("${controller.user.name}")
+        .get()
+        .then((value) {
+      value.data() != null
+          ? setState(() {
+              pin = value.data()["pin"];
+            })
+          : prefs.clear();
+      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+    }).catchError((_) => Get.rawSnackbar(
+            messageText: Text("Error! Please Try Again Later",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black))));
     setState(() {
       name = controller.user.name[0].toUpperCase() +
           controller.user.name.substring(1);
@@ -53,35 +57,35 @@ class _LogInState extends State<LogIn> {
           Expanded(
             child: SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.only(top: 80),
+                padding: EdgeInsets.only(top: getHeight(80)),
                 child: Column(
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 40),
+                      padding: EdgeInsets.symmetric(horizontal: getWidth(40)),
                       child: Center(
                         child: Text("Please enter your security pin ,",
                             style: TextStyle(
                                 fontFamily: "Elianto",
-                                fontSize: 40,
+                                fontSize: getText(40),
                                 color: MyTheme.kPrimaryColor)),
                       ),
                     ),
                     Container(
                       alignment: Alignment.centerLeft,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: getWidth(40), vertical: getHeight(20)),
                       child: Text("$name",
                           style: TextStyle(
                               fontFamily: "Elianto",
-                              fontSize: 40,
+                              fontSize: getText(40),
                               color: MyTheme.kPrimaryColor)),
                     ),
                     SizedBox(
-                      height: 50,
+                      height: getHeight(50),
                     ),
                     tinput("Enter PIN", pin1),
                     SizedBox(
-                      height: 50,
+                      height: getHeight(50),
                     ),
                   ],
                 ),
@@ -90,14 +94,8 @@ class _LogInState extends State<LogIn> {
           ),
           GestureDetector(
             onTap: () async {
-              print(controller.user.pin);
-              print(controller.user.name);
-              print(controller.user.org);
-              pin1.text == controller.user.pin
-                  ? Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                    )
+              pin1.text == pin.toString()
+                  ? Get.off(() => HomePage())
                   : Get.rawSnackbar(
                       messageText: Text(
                       "Error! Check your pin and try again",
@@ -105,19 +103,19 @@ class _LogInState extends State<LogIn> {
                     ));
             },
             child: Container(
-              height: 120,
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              height: getHeight(120),
+              padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
               decoration: BoxDecoration(
                   color: MyTheme.kPrimaryColor,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                    topLeft: Radius.circular(getText(30)),
+                    topRight: Radius.circular(getText(30)),
                   )),
               child: Center(
                 child: Text("Log In",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 30,
+                        fontSize: getText(30),
                         fontFamily: "Elianto")),
               ),
             ),
@@ -130,12 +128,12 @@ class _LogInState extends State<LogIn> {
 
 Widget tinput(String a, TextEditingController b) {
   return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      height: 80,
+      padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
+      height: getHeight(80),
       width: 300,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14),
-        height: 60,
+        padding: EdgeInsets.symmetric(horizontal: getWidth(14)),
+        height: getHeight(60),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -149,7 +147,7 @@ Widget tinput(String a, TextEditingController b) {
           obscuringCharacter: "#",
           textAlign: TextAlign.center,
           controller: b,
-          style: TextStyle(fontSize: 30, letterSpacing: 5),
+          style: TextStyle(fontSize: getText(30), letterSpacing: 5),
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: a,

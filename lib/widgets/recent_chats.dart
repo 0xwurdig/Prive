@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
 import 'package:prive/screens/chat_room.dart';
+import 'package:prive/size_config.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../app_theme.dart';
@@ -22,7 +23,7 @@ class RecentChats extends StatefulWidget {
 class _RecentChatsState extends State<RecentChats> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Controller controller = Get.find();
-  String contact;
+  String contact = '';
   String unreadCount;
   Map message;
   bool loading;
@@ -31,11 +32,6 @@ class _RecentChatsState extends State<RecentChats> {
 
   @override
   void initState() {
-    setState(() {
-      contact = widget.conversation.split('-')[0] == controller.user.name
-          ? widget.conversation.split('-')[01]
-          : widget.conversation.split('-')[0];
-    });
     unReads();
     super.initState();
   }
@@ -52,12 +48,7 @@ class _RecentChatsState extends State<RecentChats> {
         .doc('${widget.conversation}')
         .snapshots()
         .listen((snapshots) async {
-      if (snapshots.data() == null) {
-        await _firestore
-            .collection("${controller.user.org}")
-            .doc('${widget.conversation}')
-            .set({"messages": []});
-      } else {
+      if (snapshots.data() != null) {
         if (snapshots.data()['messages'].length != 0 &&
             message !=
                 snapshots.data()['messages']
@@ -83,21 +74,28 @@ class _RecentChatsState extends State<RecentChats> {
 
   @override
   Widget build(BuildContext context) {
-    if (contact != null) {
+    if (widget.conversation != null) {
+      String contact = widget.conversation.split('-')[0] == controller.user.name
+          ? widget.conversation.split('-')[1]
+          : widget.conversation.split('-')[0];
       return GestureDetector(
         onLongPress: () {
           widget.function(contact);
         },
         onTap: () {
-          Get.to(() => ChatRoom(conversation: widget.conversation));
+          Get.to(() => ChatRoom(
+                conversation: widget.conversation,
+                function: widget.function,
+              ));
         },
         child: Container(
             color: col,
-            margin: const EdgeInsets.all(15),
+            margin: EdgeInsets.symmetric(
+                horizontal: getWidth(15), vertical: getHeight(15)),
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 30,
+                  radius: getText(30),
                   // foregroundColor: Colors.white,
                   // backgroundColor: MyTheme.kAccentColorVariant,
                   child: Text(
@@ -105,7 +103,7 @@ class _RecentChatsState extends State<RecentChats> {
                   ),
                 ),
                 SizedBox(
-                  width: 20,
+                  width: getWidth(20),
                 ),
                 Expanded(
                   child: Container(
@@ -116,20 +114,21 @@ class _RecentChatsState extends State<RecentChats> {
                         Text(
                           contact[0].toUpperCase() + contact.substring(1),
                           style: MyTheme.heading2.copyWith(
-                            fontSize: 16,
+                            fontSize: getText(16),
                           ),
                         ),
-                        if (message != null)
-                          Container(
-                            width: 150,
-                            child: Text(
-                              message['type'] == 'txt'
-                                  ? message['body']
-                                  : "Photo",
-                              style: MyTheme.bodyText1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          )
+                        Text(widget.conversation)
+                        // if (message != null)
+                        //   Container(
+                        //     width: getWidth(150),
+                        //     child: Text(
+                        //       message['type'] == 'txt'
+                        //           ? message['body']
+                        //           : "Photo",
+                        //       style: MyTheme.bodyText1,
+                        //       overflow: TextOverflow.ellipsis,
+                        //     ),
+                        //   )
                       ],
                     ),
                   ),
@@ -141,24 +140,25 @@ class _RecentChatsState extends State<RecentChats> {
                     unreadCount != null && unreadCount != '0'
                         ? Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
+                                horizontal: getWidth(8),
+                                vertical: getHeight(2)),
                             decoration: BoxDecoration(
                                 color: MyTheme.kUnreadChatBG,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(6))),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(getText(6)))),
                             child: Text(
                               unreadCount,
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 11,
+                                  fontSize: getText(11),
                                   fontWeight: FontWeight.bold),
                             ),
                           )
                         : SizedBox(
-                            height: 10,
+                            height: getHeight(10),
                           ),
                     SizedBox(
-                      height: 10,
+                      height: getHeight(10),
                     ),
                     if (message != null)
                       Text(
@@ -173,10 +173,10 @@ class _RecentChatsState extends State<RecentChats> {
       );
     } else {
       return Container(
-        width: 200.0,
-        height: 100.0,
+        width: getWidth(200),
+        height: getHeight(100),
         child: Container(
-          margin: const EdgeInsets.all(15),
+          margin: EdgeInsets.all(getWidth(15)),
           child: Shimmer.fromColors(
               baseColor: Colors.grey[300],
               highlightColor: Colors.grey[200],
@@ -184,25 +184,25 @@ class _RecentChatsState extends State<RecentChats> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 30,
+                    radius: getText(30),
                     // foregroundColor: Colors.white,
                     // backgroundColor: MyTheme.kAccentColorVariant,
                   ),
                   SizedBox(
-                    width: 20,
+                    width: getWidth(20),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Container(
-                        width: 150,
-                        height: 20,
+                        width: getWidth(150),
+                        height: getHeight(20),
                         color: Colors.amber,
                       ),
                       Container(
-                        width: 240,
-                        height: 20,
+                        width: getWidth(240),
+                        height: getHeight(20),
                         color: Colors.amber,
                       )
                     ],

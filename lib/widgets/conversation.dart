@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:prive/counterState.dart';
 import 'package:intl/intl.dart';
+import 'package:prive/size_config.dart';
 
-import '../models/message_model.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +33,9 @@ class _ConversationState extends State<Conversation> {
       onNotification: (ScrollNotification scrollInfo) {
         if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
           loadMore();
+          return true;
         }
+        return false;
       },
       child: ListView.builder(
           reverse: true,
@@ -43,7 +44,7 @@ class _ConversationState extends State<Conversation> {
             final message = widget.messages[index];
             bool isMe = message['from'] == controller.user.name;
             return Container(
-              margin: EdgeInsets.only(top: 10),
+              margin: EdgeInsets.only(top: getHeight(10)),
               child: Column(
                 children: [
                   Row(
@@ -52,26 +53,28 @@ class _ConversationState extends State<Conversation> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       SizedBox(
-                        width: 10,
+                        width: getWidth(10),
                       ),
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.all(getWidth(10)),
                         constraints: BoxConstraints(
                             maxWidth: MediaQuery.of(context).size.width * 0.6),
                         decoration: BoxDecoration(
                             color:
                                 isMe ? MyTheme.kAccentColor : Colors.grey[200],
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(16),
-                              topRight: Radius.circular(16),
-                              bottomLeft: Radius.circular(isMe ? 12 : 0),
-                              bottomRight: Radius.circular(isMe ? 0 : 12),
+                              topLeft: Radius.circular(getText(16)),
+                              topRight: Radius.circular(getText(16)),
+                              bottomLeft:
+                                  Radius.circular(isMe ? getText(12) : 0),
+                              bottomRight:
+                                  Radius.circular(isMe ? 0 : getText(12)),
                             )),
                         child: message["type"] == "txt"
                             ? Text(
                                 message['body'],
                                 style: MyTheme.bodyTextMessage.copyWith(
-                                    fontSize: 16,
+                                    fontSize: getText(16),
                                     color:
                                         isMe ? Colors.white : Colors.grey[800]),
                               )
@@ -83,8 +86,8 @@ class _ConversationState extends State<Conversation> {
                                         MediaQuery.of(context).size.width * 0.5,
                                     child: Center(
                                       child: SizedBox(
-                                        height: 40,
-                                        width: 40,
+                                        height: getText(40),
+                                        width: getText(40),
                                         child: CircularProgressIndicator(
                                           color: Colors.white,
                                         ),
@@ -98,7 +101,7 @@ class _ConversationState extends State<Conversation> {
                                           ));
                                     },
                                     child: Container(
-                                      padding: EdgeInsets.all(5),
+                                      padding: EdgeInsets.all(getWidth(5)),
                                       child: Column(
                                           crossAxisAlignment: isMe
                                               ? CrossAxisAlignment.end
@@ -114,18 +117,19 @@ class _ConversationState extends State<Conversation> {
                                                 if (loadingProgress == null)
                                                   return child;
                                                 return Container(
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.3,
-                                                  width: MediaQuery.of(context)
+                                                  height:
+                                                      (MediaQuery.of(context)
+                                                              .size
+                                                              .height *
+                                                          0.3),
+                                                  width: (MediaQuery.of(context)
                                                           .size
                                                           .width *
-                                                      0.5,
+                                                      0.5),
                                                   child: Center(
                                                     child: SizedBox(
-                                                      height: 40,
-                                                      width: 40,
+                                                      height: getText(40),
+                                                      width: getText(40),
                                                       child:
                                                           CircularProgressIndicator(
                                                         color: Colors.white,
@@ -137,14 +141,14 @@ class _ConversationState extends State<Conversation> {
                                             ),
                                             if (message['body'] != "")
                                               SizedBox(
-                                                height: 10,
+                                                height: getHeight(10),
                                               ),
                                             if (message['body'] != "")
                                               Text(
                                                 message['body'],
                                                 style: MyTheme.bodyTextMessage
                                                     .copyWith(
-                                                        fontSize: 16,
+                                                        fontSize: getText(16),
                                                         color: isMe
                                                             ? Colors.white
                                                             : Colors.grey[800]),
@@ -157,7 +161,7 @@ class _ConversationState extends State<Conversation> {
                   ),
                   if (index == 0)
                     Padding(
-                      padding: const EdgeInsets.only(top: 5),
+                      padding: EdgeInsets.only(top: getHeight(5)),
                       child: Row(
                         mainAxisAlignment: isMe
                             ? MainAxisAlignment.end
@@ -165,28 +169,28 @@ class _ConversationState extends State<Conversation> {
                         children: [
                           if (!isMe)
                             SizedBox(
-                              width: 10,
+                              width: getWidth(10),
                             ),
                           if (isMe)
                             message['status'] == null
                                 ? Icon(
                                     Icons.lock_clock,
-                                    size: 20,
+                                    size: getText(20),
                                     color: MyTheme.bodyTextTime.color,
                                   )
                                 : message['status'] == 1
                                     ? Icon(
                                         Icons.done_all,
-                                        size: 20,
+                                        size: getText(20),
                                         color: MyTheme.bodyTextTime.color,
                                       )
                                     : Icon(
                                         Icons.done,
-                                        size: 20,
+                                        size: getText(20),
                                         color: MyTheme.bodyTextTime.color,
                                       ),
                           SizedBox(
-                            width: 8,
+                            width: getWidth(8),
                           ),
                           Text(
                             DateFormat.Hm().format(DateTime.parse(

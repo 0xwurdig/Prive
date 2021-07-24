@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:prive/size_config.dart';
 import '../app_theme.dart';
 
 Container buildChatComposer() {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 20),
-    height: 100,
+    padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
+    height: getHeight(100),
     child: Row(
       children: [
         Expanded(
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 14),
-            height: 60,
+            padding: EdgeInsets.symmetric(horizontal: getWidth(14)),
+            height: getHeight(60),
             decoration: BoxDecoration(
               color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(getText(30)),
             ),
             child: Row(
               children: [
@@ -35,13 +36,13 @@ Container buildChatComposer() {
           ),
         ),
         SizedBox(
-          width: 16,
+          width: getWidth(16),
         ),
         CircleAvatar(
-          radius: 30,
+          radius: getText(30),
           backgroundColor: MyTheme.kAccentColor,
           child: Container(
-            padding: EdgeInsets.only(left: 4),
+            padding: EdgeInsets.only(left: getWidth(4)),
             child: Icon(
               Icons.send,
               color: Colors.white,
