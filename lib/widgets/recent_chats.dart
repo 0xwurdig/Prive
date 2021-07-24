@@ -80,7 +80,7 @@ class _RecentChatsState extends State<RecentChats> {
           : widget.conversation.split('-')[0];
       return GestureDetector(
         onLongPress: () {
-          widget.function(contact);
+          if (widget.function != null) widget.function(contact);
         },
         onTap: () {
           Get.to(() => ChatRoom(
@@ -117,18 +117,17 @@ class _RecentChatsState extends State<RecentChats> {
                             fontSize: getText(16),
                           ),
                         ),
-                        Text(widget.conversation)
-                        // if (message != null)
-                        //   Container(
-                        //     width: getWidth(150),
-                        //     child: Text(
-                        //       message['type'] == 'txt'
-                        //           ? message['body']
-                        //           : "Photo",
-                        //       style: MyTheme.bodyText1,
-                        //       overflow: TextOverflow.ellipsis,
-                        //     ),
-                        //   )
+                        if (message != null)
+                          Container(
+                            width: getWidth(150),
+                            child: Text(
+                              message['type'] == 'txt'
+                                  ? message['body']
+                                  : "Photo",
+                              style: MyTheme.bodyText1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
                       ],
                     ),
                   ),

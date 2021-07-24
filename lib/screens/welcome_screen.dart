@@ -59,7 +59,9 @@ class _WelcmScreenState extends State<WelcmScreen> {
           ),
           GestureDetector(
             onTap: () async {
-              await auth(org.text, name.text, pin.text) == true
+              await auth(org.text, name.text.toLowerCase(),
+                          pin.text.toLowerCase()) ==
+                      true
                   ? Get.off(() =>
                       SetPin(org: org.text, name: name.text.toLowerCase()))
                   : Get.rawSnackbar(
@@ -141,8 +143,5 @@ Future<bool> auth(String org, name, pin) async {
       success = false;
     }
   });
-
-  // print(success);
   return success;
-  // print(org + name + pin);
 }

@@ -45,9 +45,12 @@ class _GetImageState extends State<GetImage> {
         imageH = prop.height;
         imageW = prop.width;
       });
-      print(imageH);
     } else {
-      print('No image selected.');
+      Get.rawSnackbar(
+          backgroundColor: MyTheme.kAccentColor,
+          messageText: Text("No Image Selected",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black)));
     }
   }
 
@@ -105,7 +108,12 @@ class _GetImageState extends State<GetImage> {
                                       _points = [];
                                     });
                                   }).catchError((onError) {
-                                    print(onError);
+                                    Get.rawSnackbar(
+                                        backgroundColor: MyTheme.kAccentColor,
+                                        messageText: Text(onError,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                color: Colors.black)));
                                   });
                               },
                               icon: Icon(Icons.crop,
@@ -250,7 +258,13 @@ class _GetImageState extends State<GetImage> {
                                       image = asd;
                                     });
                                   }).catchError((onError) {
-                                    print(onError);
+                                    Get.rawSnackbar(
+                                        backgroundColor: MyTheme.kAccentColor,
+                                        messageText: Text(onError,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                color: Colors.black)));
+                                    ;
                                   });
                                 widget.func(image, msg.text);
                                 Get.back();

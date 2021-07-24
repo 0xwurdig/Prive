@@ -17,7 +17,8 @@ class _LogInState extends State<LogIn> {
   TextEditingController pin1 = TextEditingController();
   Controller controller = Get.find();
   String name;
-  int pin;
+  String pin;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
   SharedPreferences prefs;
   @override
   void initState() {
@@ -25,27 +26,32 @@ class _LogInState extends State<LogIn> {
     getPrefs();
   }
 
-  void getPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-    await FirebaseFirestore.instance
-        .collection("${controller.user.org}")
-        .doc("${controller.user.name}")
-        .get()
-        .then((value) {
-      value.data() != null
-          ? setState(() {
-              pin = value.data()["pin"];
-            })
-          : prefs.clear();
-      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-    }).catchError((_) => Get.rawSnackbar(
-            messageText: Text("Error! Please Try Again Later",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black))));
+  getPrefs() async {
     setState(() {
       name = controller.user.name[0].toUpperCase() +
           controller.user.name.substring(1);
     });
+    try {
+      prefs = await SharedPreferences.getInstance();
+      var doc = await _firestore
+          .collection("${controller.user.org}")
+          .doc("${controller.user.name}")
+          .get();
+      if (doc.data() != null) {
+        setState(() {
+          pin = doc.data()["pin"];
+        });
+      } else {
+        prefs.clear();
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      }
+    } catch (e) {
+      Get.rawSnackbar(
+          backgroundColor: MyTheme.kAccentColor,
+          messageText: Text("Error! Please Try Again Later",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black)));
+    }
   }
 
   @override
@@ -94,13 +100,14 @@ class _LogInState extends State<LogIn> {
           ),
           GestureDetector(
             onTap: () async {
-              pin1.text == pin.toString()
+              pin1.text == pin
                   ? Get.off(() => HomePage())
                   : Get.rawSnackbar(
+                      backgroundColor: MyTheme.kAccentColor,
                       messageText: Text(
-                      "Error! Check your pin and try again",
-                      textAlign: TextAlign.center,
-                    ));
+                        "Error! Check your pin and try again",
+                        textAlign: TextAlign.center,
+                      ));
             },
             child: Container(
               height: getHeight(120),

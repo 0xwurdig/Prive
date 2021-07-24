@@ -27,27 +27,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool registered = false;
   Controller controller = Get.put(Controller());
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getPrefs();
-  // }
-
-  // void getPrefs() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   try {
-  //     User user = new User();
-  //     user.org = prefs.getStringList("det")[0];
-  //     user.name = prefs.getStringList("det")[0];
-  //     user.pin = prefs.getStringList("det")[0];
-  //     print(user);
-  //     controller.add(user);
-  //   } catch (e) {
-  //     setState(() {
-  //       registered = false;
-  //     });
-  //   }
-  // }
   @override
   void initState() {
     super.initState();

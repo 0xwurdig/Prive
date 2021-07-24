@@ -97,19 +97,18 @@ class _SetPinState extends State<SetPin> {
               user.org = prefs.getStringList("det")[0];
               user.name = prefs.getStringList("det")[1];
               user.pin = prefs.getStringList("det")[2];
-              print(user.org);
-              print(user.name);
-              print(user.pin);
               controller.add(user);
               pin1.text == pin2.text
                   ? a
                       ? Get.off(() => LogIn())
                       : Get.rawSnackbar(
+                          backgroundColor: MyTheme.kAccentColor,
                           messageText: Text(
                               "Error! Check your connection and try again",
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.black)))
                   : Get.rawSnackbar(
+                      backgroundColor: MyTheme.kAccentColor,
                       messageText: Text("Error! Pins do not match!",
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.black)));
@@ -180,7 +179,5 @@ Future<bool> setPin({String pin, String org, String name}) async {
   }).catchError((e) {
     success = false;
   });
-  // print(success);
   return success;
-  // print(org + name + pin);
 }

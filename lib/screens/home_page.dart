@@ -142,7 +142,6 @@ class _HomePageState extends State<HomePage> {
       });
       if (users != arr)
         setState(() {
-          print("users is changed");
           asd = snapshots.data()['users'];
           users = arr;
           if (users.length != snapshots.data()['limit']) limit = false;
@@ -152,9 +151,12 @@ class _HomePageState extends State<HomePage> {
             owner = true;
           if (snapshots.data()['revoked']) revoked = true;
         });
-      print(users);
     }).onError((_) {
-      print("error");
+      Get.rawSnackbar(
+          backgroundColor: MyTheme.kAccentColor,
+          messageText: Text(_,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black)));
     });
   }
 
@@ -162,35 +164,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyTheme.kPrimaryColor,
-      // appBar: AppBar(
-      //   toolbarHeight: getHeight(15)0,
-      //   leading: GestureDetector(
-      //               onTap: () {
-      //                 return Drawer(
-      //                   child: Text("asdasds"),
-      //                 );
-      //               },
-      //               child: Icon(
-      //                 Icons.menu,
-      //                 size: 30,
-      //                 color: Colors.white,
-      //               ),
-      //             ),
-      //   title: Center(
-      //     child: Text(
-      //       'privé',
-      //       style: GoogleFonts.bebasNeue(
-      //           fontSize: getText(50), letterSpacing: 4, color: Colors.white),
-      //     ),
-      //   ),
-      //   actions: [
-      //     Icon(
-      //       Icons.phonelink_erase,
-      //       size: 30,
-      //       color: Colors.white,
-      //     )
-      //   ],
-      // ),
       drawer: Container(
         height: getHeight(500),
         width: getWidth(300),
@@ -523,11 +496,14 @@ class _HomePageState extends State<HomePage> {
     return users.length > 0
         ? ListView(
             children: users.map((e) {
-              print(e);
-              return RecentChats(
-                conversation: e,
-                function: deleteContact,
-              );
+              return owner
+                  ? RecentChats(
+                      conversation: e,
+                      function: deleteContact,
+                    )
+                  : RecentChats(
+                      conversation: e,
+                    );
             }).toList(),
           )
         : Center(

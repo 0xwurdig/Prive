@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -120,7 +121,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    widget.function(contact);
+                    if (widget.function != null) widget.function(contact);
                     Get.back();
                   },
                   child: Icon(
@@ -240,7 +241,6 @@ class _ChatRoomState extends State<ChatRoom> {
       final ref = FirebaseStorage.instance.ref(destination);
       final snapshot = await ref.putFile(file).whenComplete(() {});
       final urlDownload = await snapshot.ref.getDownloadURL();
-      print('Download-Link: $urlDownload');
       msg = {
         "status": 0,
         "url": urlDownload,
@@ -251,7 +251,11 @@ class _ChatRoomState extends State<ChatRoom> {
       };
       send(msg);
     } on FirebaseException catch (e) {
-      print(e);
+      Get.rawSnackbar(
+          backgroundColor: MyTheme.kAccentColor,
+          messageText: Text(e.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black)));
     }
   }
 
@@ -264,7 +268,11 @@ class _ChatRoomState extends State<ChatRoom> {
         "messages": FieldValue.arrayUnion([msg])
       });
     } on FirebaseException catch (e) {
-      print(e);
+      Get.rawSnackbar(
+          backgroundColor: MyTheme.kAccentColor,
+          messageText: Text(e.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black)));
     }
   }
 }
