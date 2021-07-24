@@ -6,7 +6,6 @@ import 'package:prive/screens/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
-import '../screens/screen.dart';
 
 class SetPin extends StatefulWidget {
   final org;
@@ -109,13 +108,13 @@ class _SetPinState extends State<SetPin> {
                         )
                       : Get.rawSnackbar(
                           messageText: Text(
-                          "Error! Check your connection and try again",
-                          textAlign: TextAlign.center,
-                        ))
+                              "Error! Check your connection and try again",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.black)))
                   : Get.rawSnackbar(
                       messageText: Text("Error! Pins do not match!",
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white)));
+                          style: TextStyle(color: Colors.black)));
             },
             child: Container(
               height: 120,
@@ -158,6 +157,8 @@ Widget tinput(String a, TextEditingController b) {
           ),
         ),
         child: TextField(
+          obscureText: true,
+          obscuringCharacter: "#",
           textAlign: TextAlign.center,
           controller: b,
           style: TextStyle(fontSize: 30, letterSpacing: 5),

@@ -71,6 +71,7 @@ class _ConversationState extends State<Conversation> {
                             ? Text(
                                 message['body'],
                                 style: MyTheme.bodyTextMessage.copyWith(
+                                    fontSize: 16,
                                     color:
                                         isMe ? Colors.white : Colors.grey[800]),
                               )
@@ -93,57 +94,108 @@ class _ConversationState extends State<Conversation> {
                                 : GestureDetector(
                                     onTap: () {
                                       Get.to(() => View(
-                                            url: message['body'],
+                                            url: message['url'],
                                           ));
                                     },
                                     child: Container(
                                       padding: EdgeInsets.all(5),
-                                      child: Image.network(message["body"]),
+                                      child: Column(
+                                          crossAxisAlignment: isMe
+                                              ? CrossAxisAlignment.end
+                                              : CrossAxisAlignment.start,
+                                          children: [
+                                            Image.network(
+                                              message["url"],
+                                              loadingBuilder:
+                                                  (BuildContext context,
+                                                      Widget child,
+                                                      ImageChunkEvent
+                                                          loadingProgress) {
+                                                if (loadingProgress == null)
+                                                  return child;
+                                                return Container(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.3,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.5,
+                                                  child: Center(
+                                                    child: SizedBox(
+                                                      height: 40,
+                                                      width: 40,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                            if (message['body'] != "")
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                            if (message['body'] != "")
+                                              Text(
+                                                message['body'],
+                                                style: MyTheme.bodyTextMessage
+                                                    .copyWith(
+                                                        fontSize: 16,
+                                                        color: isMe
+                                                            ? Colors.white
+                                                            : Colors.grey[800]),
+                                              )
+                                          ]),
                                     ),
                                   ),
                       ),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5),
-                    child: Row(
-                      mainAxisAlignment: isMe
-                          ? MainAxisAlignment.end
-                          : MainAxisAlignment.start,
-                      children: [
-                        if (!isMe)
+                  if (index == 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Row(
+                        mainAxisAlignment: isMe
+                            ? MainAxisAlignment.end
+                            : MainAxisAlignment.start,
+                        children: [
+                          if (!isMe)
+                            SizedBox(
+                              width: 10,
+                            ),
+                          if (isMe)
+                            message['status'] == null
+                                ? Icon(
+                                    Icons.lock_clock,
+                                    size: 20,
+                                    color: MyTheme.bodyTextTime.color,
+                                  )
+                                : message['status'] == 1
+                                    ? Icon(
+                                        Icons.done_all,
+                                        size: 20,
+                                        color: MyTheme.bodyTextTime.color,
+                                      )
+                                    : Icon(
+                                        Icons.done,
+                                        size: 20,
+                                        color: MyTheme.bodyTextTime.color,
+                                      ),
                           SizedBox(
-                            width: 10,
+                            width: 8,
                           ),
-                        if (isMe)
-                          message['status'] == null
-                              ? Icon(
-                                  Icons.lock_clock,
-                                  size: 20,
-                                  color: MyTheme.bodyTextTime.color,
-                                )
-                              : message['status'] == 1
-                                  ? Icon(
-                                      Icons.done_all,
-                                      size: 20,
-                                      color: MyTheme.bodyTextTime.color,
-                                    )
-                                  : Icon(
-                                      Icons.done,
-                                      size: 20,
-                                      color: MyTheme.bodyTextTime.color,
-                                    ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Text(
-                          DateFormat.Hm().format(DateTime.parse(
-                              message['sent'].toDate().toString())),
-                          style: MyTheme.bodyTextTime,
-                        )
-                      ],
-                    ),
-                  )
+                          Text(
+                            DateFormat.Hm().format(DateTime.parse(
+                                message['sent'].toDate().toString())),
+                            style: MyTheme.bodyTextTime,
+                          )
+                        ],
+                      ),
+                    )
                 ],
               ),
             );

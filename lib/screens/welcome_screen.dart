@@ -1,15 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
 import 'package:prive/screens/set_pin.dart';
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import '../widgets/widgets.dart';
-import '../screens/screen.dart';
 
 class WelcmScreen extends StatefulWidget {
   @override
@@ -93,13 +87,13 @@ class _WelcmScreenState extends State<WelcmScreen> {
           GestureDetector(
             onTap: () async {
               await auth(org.text, name.text, pin.text) == true
-                  ? Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SetPin(
-                              org: org.text, name: name.text.toLowerCase())),
-                    )
-                  : print("Auth Error");
+                  ? Get.off(() =>
+                      SetPin(org: org.text, name: name.text.toLowerCase()))
+                  : Get.rawSnackbar(
+                      backgroundColor: MyTheme.kAccentColorVariant,
+                      messageText: Text("Error! Credentials do not match!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.black)));
             },
             child: Container(
               height: 120,

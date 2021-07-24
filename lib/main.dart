@@ -5,9 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:memory_checker/memory_checker.dart';
 import 'package:prive/counterState.dart';
 import 'package:prive/screens/login.dart';
+import 'package:prive/screens/welcome_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './app_theme.dart';
-import './screens/screen.dart';
 import 'models/user.dart';
 
 void main() async {
@@ -58,9 +58,6 @@ class _MyAppState extends State<MyApp> {
       user.org = prefs.getStringList("det")[0];
       user.name = prefs.getStringList("det")[1];
       user.pin = prefs.getStringList("det")[2];
-      print(user.org);
-      print(user.name);
-      print(user.pin);
       controller.add(user);
       setState(() {
         registered = true;

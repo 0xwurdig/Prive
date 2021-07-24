@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:prive/counterState.dart';
 import 'package:path/path.dart';
 import 'package:prive/models/message_model.dart';
+import 'package:prive/screens/pick_image.dart';
 import 'package:prive/widgets/conversation.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
@@ -29,19 +30,27 @@ class _ChatRoomState extends State<ChatRoom> {
   TextEditingController text = new TextEditingController();
   StreamSubscription streamSubscription;
   List messages = [];
-  Future<void> _pickImage() async {
-    final selected = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-    );
-    if (selected != null) {
-      uploadFile(File(selected.path));
-    } else {
-      print('No image selected.');
-    }
-  }
-
+  String contact = "";
+  // Future<void> _pickImage() => Get.to(() {
+  //       return ImageEditor.ImageEditorPro(
+  //         appBarColor: Colors.black87,
+  //         bottomBarColor: Colors.black87,
+  //         pathSave: null,
+  //       );
+  //     }).then((selected) {
+  //       if (selected != null) {
+  //         uploadFile(File(selected.path));
+  //       }
+  //     }).catchError((er) {
+  //       print(er);
+  //     });
   @override
   void initState() {
+    setState(() {
+      contact = widget.conversation.split('-')[0] == controller.user.name
+          ? widget.conversation.split('-')[01]
+          : widget.conversation.split('-')[0];
+    });
     unReads();
     super.initState();
   }
@@ -73,6 +82,7 @@ class _ChatRoomState extends State<ChatRoom> {
           .update({"messages": messages});
     });
   }
+
   // Future<void> _cropImage(var image) async {
   //   File cropped = await ImageCropper.cropImage(
   //       sourcePath: image.path,
@@ -89,6 +99,7 @@ class _ChatRoomState extends State<ChatRoom> {
   //   });
   // }
 
+  // uploadFile(value);
   Controller controller = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -119,8 +130,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   ),
                 ),
                 Text(
-                  controller.user.name[0].toUpperCase() +
-                      controller.user.name.substring(1),
+                  contact[0].toUpperCase() + contact.substring(1),
                   style: GoogleFonts.montserrat(
                       fontSize: 28, letterSpacing: 4, color: Colors.white),
                 ),
@@ -171,7 +181,9 @@ class _ChatRoomState extends State<ChatRoom> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            _pickImage();
+                            Get.to(() => GetImage(
+                                  func: uploadFile,
+                                ));
                           },
                           child: Icon(
                             Icons.camera_enhance,
@@ -187,20 +199,21 @@ class _ChatRoomState extends State<ChatRoom> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // uploadFile();
-                    Map msg;
-                    msg = {
-                      "body": text.text,
-                      "sent": Timestamp.now(),
-                      "type": "txt",
-                      "from": controller.user.name
-                    };
-                    setState(() {
-                      messages.add(msg);
-                      text.clear();
-                    });
-                    msg["status"] = 0;
-                    send(msg);
+                    if (text.text != "") {
+                      Map msg;
+                      msg = {
+                        "body": text.text,
+                        "sent": Timestamp.now(),
+                        "type": "txt",
+                        "from": controller.user.name
+                      };
+                      setState(() {
+                        messages.add(msg);
+                        text.clear();
+                      });
+                      msg["status"] = 0;
+                      send(msg);
+                    }
                   },
                   child: CircleAvatar(
                     radius: 30,
@@ -231,11 +244,12 @@ class _ChatRoomState extends State<ChatRoom> {
   //   setState(() => file = File(path));
   // }
 
-  Future uploadFile(File file) async {
+  Future uploadFile(File file, String text) async {
     Map msg;
     msg = {
       "sent": Timestamp.now(),
       "type": "file",
+      "body": text,
       "from": controller.user.name
     };
     setState(() {
@@ -252,7 +266,8 @@ class _ChatRoomState extends State<ChatRoom> {
       print('Download-Link: $urlDownload');
       msg = {
         "status": 0,
-        "body": urlDownload,
+        "url": urlDownload,
+        if (text != null) "body": text,
         "sent": Timestamp.now(),
         "type": "file",
         "from": controller.user.name

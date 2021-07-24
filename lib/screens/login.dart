@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
 import 'package:prive/models/user.dart';
+import 'package:prive/screens/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
-import '../screens/screen.dart';
 
 class LogIn extends StatefulWidget {
   @override
@@ -145,6 +145,8 @@ Widget tinput(String a, TextEditingController b) {
           ),
         ),
         child: TextField(
+          obscureText: true,
+          obscuringCharacter: "#",
           textAlign: TextAlign.center,
           controller: b,
           style: TextStyle(fontSize: 30, letterSpacing: 5),

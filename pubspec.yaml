@@ -38,6 +38,9 @@ dependencies:
   shimmer:
   memory_checker:
   photo_view:
+  flutter_native_image:
+  signature:
+  screenshot:
 
 dev_dependencies:
   flutter_test:
