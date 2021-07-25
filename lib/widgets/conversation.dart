@@ -182,7 +182,7 @@ class _ConversationState extends State<Conversation> {
                                     ? Icon(
                                         Icons.done_all,
                                         size: getText(20),
-                                        color: MyTheme.bodyTextTime.color,
+                                        color: Colors.blue,
                                       )
                                     : Icon(
                                         Icons.done,

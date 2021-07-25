@@ -140,17 +140,21 @@ class _HomePageState extends State<HomePage> {
           arr.add(varr.join('-'));
         }
       });
-      if (users != arr)
-        setState(() {
-          asd = snapshots.data()['users'];
-          users = arr;
-          if (users.length != snapshots.data()['limit']) limit = false;
-          if (pin != snapshots.data()['auth'])
-            pin = snapshots.data()['auth'].toString();
-          if (snapshots.data()['users'][0] == controller.user.name)
-            owner = true;
-          if (snapshots.data()['revoked']) revoked = true;
-        });
+      if (!snapshots.data()['users'].contains(controller.user.name)) {
+        prefs.clear();
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      } else {
+        if (users != arr)
+          setState(() {
+            users = arr;
+            if (users.length != snapshots.data()['limit']) limit = false;
+            if (pin != snapshots.data()['auth'])
+              pin = snapshots.data()['auth'].toString();
+            if (snapshots.data()['users'][0] == controller.user.name)
+              owner = true;
+            if (snapshots.data()['revoked']) revoked = true;
+          });
+      }
     }).onError((_) {
       Get.rawSnackbar(
           backgroundColor: MyTheme.kAccentColor,
@@ -404,7 +408,7 @@ class _HomePageState extends State<HomePage> {
           ))
         ],
       ),
-      floatingActionButton: !limit
+      floatingActionButton: !limit && owner
           ? Padding(
               padding: const EdgeInsets.all(10),
               child: SizedBox(

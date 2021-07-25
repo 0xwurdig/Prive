@@ -90,28 +90,37 @@ class _SetPinState extends State<SetPin> {
           ),
           GestureDetector(
             onTap: () async {
-              bool a = await setPin(
-                  pin: pin2.text, name: widget.name, org: widget.org);
-              await prefs
-                  .setStringList("det", [widget.org, widget.name, pin2.text]);
-              user.org = prefs.getStringList("det")[0];
-              user.name = prefs.getStringList("det")[1];
-              user.pin = prefs.getStringList("det")[2];
-              controller.add(user);
-              pin1.text == pin2.text
-                  ? a
-                      ? Get.off(() => LogIn())
-                      : Get.rawSnackbar(
-                          backgroundColor: MyTheme.kAccentColor,
-                          messageText: Text(
-                              "Error! Check your connection and try again",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.black)))
-                  : Get.rawSnackbar(
-                      backgroundColor: MyTheme.kAccentColor,
-                      messageText: Text("Error! Pins do not match!",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.black)));
+              if (pin1.text.length > 3 && pin2.text.length > 3) {
+                bool a = await setPin(
+                    pin: pin2.text, name: widget.name, org: widget.org);
+                await prefs
+                    .setStringList("det", [widget.org, widget.name, pin2.text]);
+                user.org = prefs.getStringList("det")[0];
+                user.name = prefs.getStringList("det")[1];
+                user.pin = prefs.getStringList("det")[2];
+                controller.add(user);
+                pin1.text == pin2.text
+                    ? a
+                        ? Get.off(() => LogIn())
+                        : Get.rawSnackbar(
+                            backgroundColor: MyTheme.kAccentColor,
+                            messageText: Text(
+                                "Error! Check your connection and try again",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.black)))
+                    : Get.rawSnackbar(
+                        backgroundColor: MyTheme.kAccentColor,
+                        messageText: Text("Error! Pins do not match!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.black)));
+              } else {
+                Get.rawSnackbar(
+                    backgroundColor: MyTheme.kAccentColor,
+                    messageText: Text(
+                        "Error! Please enter minimum 3 characters",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black)));
+              }
             },
             child: Container(
               height: getHeight(120),
@@ -154,6 +163,7 @@ Widget tinput(String a, TextEditingController b) {
           ),
         ),
         child: TextField(
+          keyboardType: TextInputType.number,
           obscureText: true,
           obscuringCharacter: "#",
           textAlign: TextAlign.center,

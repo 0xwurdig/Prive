@@ -57,7 +57,7 @@ class _MyAppState extends State<MyApp> {
             return GetMaterialApp(
               navigatorObservers: [LeakObserver()],
               debugShowCheckedModeBanner: false,
-              title: 'Chattie UI',
+              title: 'Prive',
               theme: ThemeData(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,

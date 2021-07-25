@@ -150,6 +150,7 @@ Widget tinput(String a, TextEditingController b) {
           ),
         ),
         child: TextField(
+          keyboardType: TextInputType.number,
           obscureText: true,
           obscuringCharacter: "#",
           textAlign: TextAlign.center,

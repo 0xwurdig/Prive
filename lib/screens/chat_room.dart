@@ -119,17 +119,21 @@ class _ChatRoomState extends State<ChatRoom> {
                       letterSpacing: getText(4),
                       color: Colors.white),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    if (widget.function != null) widget.function(contact);
-                    Get.back();
-                  },
-                  child: Icon(
-                    Icons.delete_outline,
-                    color: Colors.white,
-                    size: getText(25),
-                  ),
-                )
+                widget.function != null
+                    ? GestureDetector(
+                        onTap: () {
+                          Get.back();
+                          widget.function(contact);
+                        },
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: Colors.white,
+                          size: getText(25),
+                        ),
+                      )
+                    : SizedBox(
+                        width: getWidth(20),
+                      )
               ],
             )),
           ),
