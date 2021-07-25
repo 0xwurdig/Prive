@@ -51,6 +51,7 @@ class _GetImageState extends State<GetImage> {
           messageText: Text("No Image Selected",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.black)));
+      Get.back();
     }
   }
 
