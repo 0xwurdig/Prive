@@ -48,7 +48,7 @@ class _LogInState extends State<LogIn> {
     } catch (e) {
       Get.rawSnackbar(
           backgroundColor: MyTheme.kAccentColor,
-          messageText: Text("Error! Please Try Again Later",
+          messageText: Text("Error! Check your connection and try again",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.black)));
     }

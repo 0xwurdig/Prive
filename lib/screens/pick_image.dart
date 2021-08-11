@@ -33,7 +33,7 @@ class _GetImageState extends State<GetImage> {
 
   Future<void> _pickImage() async {
     final selected = await ImagePicker().pickImage(
-      imageQuality: 80,
+      imageQuality: 100,
       source: ImageSource.camera,
     );
     if (selected != null) {
@@ -69,226 +69,229 @@ class _GetImageState extends State<GetImage> {
               onTap: () {
                 FocusScope.of(context).requestFocus(new FocusNode());
               },
-              child: Container(
-                color: Colors.black,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (doodle == true)
-                            IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _points = [];
-                                  });
-                                },
-                                icon: Icon(Icons.clear,
-                                    color: Colors.white, size: 30)),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          IconButton(
-                              onPressed: () {
-                                File asd = new File(image.path + "a");
-                                if (_points != [])
-                                  screenshotController
-                                      .capture(
-                                          pixelRatio: imageH / imageW,
-                                          delay: Duration(milliseconds: 10))
-                                      .then((capturedImage) async {
-                                    asd.writeAsBytesSync(capturedImage);
-                                    Get.to(() => CropImage(
-                                          image: asd,
-                                          child: Container(),
-                                          function: setImage,
-                                        ));
+              child: SafeArea(
+                child: Container(
+                  color: Colors.black,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (doodle == true)
+                              IconButton(
+                                  onPressed: () {
                                     setState(() {
-                                      image = asd;
                                       _points = [];
                                     });
-                                  }).catchError((onError) {
-                                    Get.rawSnackbar(
-                                        backgroundColor: MyTheme.kAccentColor,
-                                        messageText: Text(onError,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Colors.black)));
-                                  });
-                              },
-                              icon: Icon(Icons.crop,
-                                  color: Colors.white, size: 30)),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  // if (doodle == true) _points = [];
-                                  doodle = !doodle;
-                                });
-                              },
-                              child: ClipOval(
-                                child: Container(
-                                  width: 50,
-                                  height: 50,
-                                  color: color != null && doodle
-                                      ? color
-                                      : Colors.transparent,
-                                  child: Icon(Icons.edit,
-                                      color: Colors.white, size: 30),
-                                ),
-                              )),
-                          SizedBox(
-                            width: 10,
-                          ),
-                        ],
-                      ),
-                      doodle || _points != []
-                          ? Expanded(
-                              child: Center(
-                                  child: Screenshot(
-                                controller: screenshotController,
-                                child: imageH != null && imageW != null
-                                    ? Container(
-                                        clipBehavior: Clip.hardEdge,
-                                        height: imageH /
-                                            imageW *
-                                            MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                          image: FileImage(image),
-                                        )),
-                                        child: GestureDetector(
-                                          onPanUpdate:
-                                              (DragUpdateDetails details) {
-                                            if (doodle)
-                                              setState(() {
-                                                RenderBox object =
-                                                    context.findRenderObject();
-                                                Offset _localPosition = object
-                                                    .globalToLocal(
-                                                        details.globalPosition)
-                                                    .translate(
-                                                        0,
-                                                        10 -
-                                                            (MediaQuery.of(context)
-                                                                        .size
-                                                                        .height -
-                                                                    (imageH /
-                                                                        imageW *
-                                                                        MediaQuery.of(context)
-                                                                            .size
-                                                                            .width)) /
-                                                                2);
-                                                _points = new List.from(_points)
-                                                  ..add(_localPosition);
-                                              });
-                                          },
-                                          onPanEnd: (DragEndDetails details) {
-                                            if (doodle) _points.add(null);
-                                          },
-                                          child: new CustomPaint(
-                                            painter: new Signature(
-                                                points: _points, color: color),
-                                            size: Size.infinite,
-                                          ),
-                                          // ),
-                                        ),
-                                      )
-                                    : Container(),
-                              )),
-                            )
-                          : Expanded(child: Image.file(image)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 5),
-                        height: 100,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 14),
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        onTap: () {
-                                          setState(() {
-                                            if (doodle) doodle = false;
-                                          });
-                                        },
-                                        controller: msg,
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintText: 'Type your message ...',
-                                          hintStyle: TextStyle(
-                                              color: Colors.grey[500]),
-                                        ),
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.grey[500],
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
+                                  },
+                                  icon: Icon(Icons.clear,
+                                      color: Colors.white, size: 30)),
                             SizedBox(
-                              width: 5,
+                              width: 10,
+                            ),
+                            IconButton(
+                                onPressed: () {
+                                  File asd = new File(image.path + "a");
+                                  if (_points != [])
+                                    screenshotController
+                                        .capture(
+                                            pixelRatio: imageH / imageW,
+                                            delay: Duration(milliseconds: 10))
+                                        .then((capturedImage) async {
+                                      asd.writeAsBytesSync(capturedImage);
+                                      Get.to(() => CropImage(
+                                            image: asd,
+                                            child: Container(),
+                                            function: setImage,
+                                          ));
+                                      setState(() {
+                                        image = asd;
+                                        _points = [];
+                                      });
+                                    }).catchError((onError) {
+                                      Get.rawSnackbar(
+                                          backgroundColor: MyTheme.kAccentColor,
+                                          messageText: Text(onError,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.black)));
+                                    });
+                                },
+                                icon: Icon(Icons.crop,
+                                    color: Colors.white, size: 30)),
+                            SizedBox(
+                              width: 20,
                             ),
                             GestureDetector(
-                              onTap: () {
-                                FocusScope.of(context)
-                                    .requestFocus(new FocusNode());
-                                if (_points != [])
-                                  screenshotController
-                                      .capture(
-                                          pixelRatio: imageH / imageW,
-                                          delay: Duration(milliseconds: 10))
-                                      .then((capturedImage) async {
-                                    File asd = new File(image.path);
-                                    asd.writeAsBytesSync(capturedImage);
-                                    setState(() {
-                                      image = asd;
-                                    });
-                                  }).catchError((onError) {
-                                    Get.rawSnackbar(
-                                        backgroundColor: MyTheme.kAccentColor,
-                                        messageText: Text(onError,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Colors.black)));
-                                    ;
+                                onTap: () {
+                                  setState(() {
+                                    // if (doodle == true) _points = [];
+                                    doodle = !doodle;
                                   });
-                                widget.func(image, msg.text);
-                                Get.back();
-                              },
-                              child: CircleAvatar(
-                                radius: 30,
-                                backgroundColor: MyTheme.kAccentColor,
+                                },
+                                child: ClipOval(
+                                  child: Container(
+                                    width: 50,
+                                    height: 50,
+                                    color: color != null && doodle
+                                        ? color
+                                        : Colors.transparent,
+                                    child: Icon(Icons.edit,
+                                        color: Colors.white, size: 30),
+                                  ),
+                                )),
+                            SizedBox(
+                              width: 10,
+                            ),
+                          ],
+                        ),
+                        doodle || _points != []
+                            ? Expanded(
+                                child: Center(
+                                    child: Screenshot(
+                                  controller: screenshotController,
+                                  child: imageH != null && imageW != null
+                                      ? Container(
+                                          clipBehavior: Clip.hardEdge,
+                                          height: imageH /
+                                              imageW *
+                                              MediaQuery.of(context).size.width,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                            image: FileImage(image),
+                                          )),
+                                          child: GestureDetector(
+                                            onPanUpdate:
+                                                (DragUpdateDetails details) {
+                                              if (doodle)
+                                                setState(() {
+                                                  RenderBox object = context
+                                                      .findRenderObject();
+                                                  Offset _localPosition = object
+                                                      .globalToLocal(details
+                                                          .globalPosition)
+                                                      .translate(
+                                                          0,
+                                                          10 -
+                                                              (MediaQuery.of(context)
+                                                                          .size
+                                                                          .height -
+                                                                      (imageH /
+                                                                          imageW *
+                                                                          MediaQuery.of(context)
+                                                                              .size
+                                                                              .width)) /
+                                                                  2);
+                                                  _points =
+                                                      new List.from(_points)
+                                                        ..add(_localPosition);
+                                                });
+                                            },
+                                            onPanEnd: (DragEndDetails details) {
+                                              if (doodle) _points.add(null);
+                                            },
+                                            child: new CustomPaint(
+                                              painter: new Signature(
+                                                  points: _points,
+                                                  color: color),
+                                              size: Size.infinite,
+                                            ),
+                                            // ),
+                                          ),
+                                        )
+                                      : Container(),
+                                )),
+                              )
+                            : Expanded(child: Image.file(image)),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          height: 100,
+                          child: Row(
+                            children: [
+                              Expanded(
                                 child: Container(
-                                  padding: EdgeInsets.only(left: 4),
-                                  child: Icon(
-                                    Icons.send,
-                                    color: Colors.white,
+                                  padding: EdgeInsets.symmetric(horizontal: 14),
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          onTap: () {
+                                            setState(() {
+                                              if (doodle) doodle = false;
+                                            });
+                                          },
+                                          controller: msg,
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: 'Type your message ...',
+                                            hintStyle: TextStyle(
+                                                color: Colors.grey[500]),
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.grey[500],
+                                      )
+                                    ],
                                   ),
                                 ),
                               ),
-                            )
-                          ],
+                              SizedBox(
+                                width: 5,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
+                                  if (_points != [])
+                                    screenshotController
+                                        .capture(
+                                            pixelRatio: imageH / imageW,
+                                            delay: Duration(milliseconds: 10))
+                                        .then((capturedImage) async {
+                                      File asd = new File(image.path);
+                                      asd.writeAsBytesSync(capturedImage);
+                                      setState(() {
+                                        image = asd;
+                                      });
+                                    }).catchError((onError) {
+                                      Get.rawSnackbar(
+                                          backgroundColor: MyTheme.kAccentColor,
+                                          messageText: Text(onError,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.black)));
+                                    });
+                                  widget.func(image, msg.text);
+                                  Get.back();
+                                },
+                                child: CircleAvatar(
+                                  radius: 30,
+                                  backgroundColor: MyTheme.kAccentColor,
+                                  child: Container(
+                                    padding: EdgeInsets.only(left: 4),
+                                    child: Icon(
+                                      Icons.send,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                      // SizedBox(
-                      //   width: 30,
-                      // ),
-                    ]),
+                        // SizedBox(
+                        //   width: 30,
+                        // ),
+                      ]),
+                ),
               ),
             )
           : Container(),

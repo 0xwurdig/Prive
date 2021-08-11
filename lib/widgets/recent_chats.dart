@@ -14,7 +14,8 @@ import '../app_theme.dart';
 class RecentChats extends StatefulWidget {
   final String conversation;
   final function;
-  const RecentChats({@required this.conversation, this.function});
+  final bool owner;
+  const RecentChats({@required this.conversation, this.function, this.owner});
 
   @override
   _RecentChatsState createState() => _RecentChatsState();
@@ -66,7 +67,9 @@ class _RecentChatsState extends State<RecentChats> {
             loading = false;
           });
         } else {
-          message = null;
+          setState(() {
+            message = null;
+          });
         }
       }
     });
@@ -84,6 +87,7 @@ class _RecentChatsState extends State<RecentChats> {
         },
         onTap: () {
           Get.to(() => ChatRoom(
+                owner: widget.owner,
                 conversation: widget.conversation,
                 function: widget.function,
               ));

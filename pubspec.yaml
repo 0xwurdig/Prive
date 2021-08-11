@@ -15,18 +15,19 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  encrypt:
+  package_info:
   flutter:
     sdk: flutter
+  intl:
   google_fonts:
   firebase_core:
-  firebase_analytics:
-  firebase_auth:
   cloud_firestore:
   shared_preferences:
   get:
@@ -36,12 +37,16 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   shimmer:
-  memory_checker:
   photo_view:
   flutter_native_image:
   signature:
   screenshot:
-
+  printing:
+  pdf:
+  http:
+  flutter_image_compress:
+  firebase_messaging:
+  flutter_local_notifications:
 dev_dependencies:
   flutter_launcher_icons:
   flutter_test:
@@ -63,7 +68,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/
+    - assets/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
