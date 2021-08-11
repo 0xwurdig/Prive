@@ -1,13 +1,11 @@
 import 'dart:math';
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:prive/counterState.dart';
 import 'package:intl/intl.dart';
 import 'package:prive/screens/forwardScreen.dart';
-import 'package:prive/screens/home_page.dart';
+import 'package:prive/screens/welcome_screen.dart';
 import 'package:prive/size_config.dart';
 import 'package:prive/widgets/sildeToConfirm.dart';
 import '../app_theme.dart';
@@ -69,7 +67,7 @@ class _ConversationState extends State<Conversation> {
                   style: TextStyle(fontSize: getText(24)),
                 ),
               ),
-              ninput("Pin", pin, true),
+              tinput("Pin", pin),
               ConfirmationSlider(
                 height: getHeight(70),
                 backgroundShape: BorderRadius.circular(getText(10)),
@@ -79,61 +77,54 @@ class _ConversationState extends State<Conversation> {
                 text: "PRINT",
                 textStyle: TextStyle(fontSize: getText(20)),
                 onConfirmation: () async {
-                  if (pin.text == controller.user.pin || widget.owner) {
-                    try {
-                      final FirebaseFirestore _firestore =
-                          FirebaseFirestore.instance;
-                      await _firestore
-                          .collection(controller.user.org)
-                          .doc('prive')
-                          .get()
-                          .then((doc) {
-                        if (doc.data()['auth'].toString() == pin.text) {
-                          int ran = Random().nextInt(900000) + 100000;
-                          _firestore
-                              .collection(controller.user.org)
-                              .doc('prive')
-                              .update({"auth": ran});
-                        } else {
-                          Get.rawSnackbar(
-                              snackPosition: SnackPosition.TOP,
-                              messageText: Text("Error! Incorrect Pin",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white)));
-                        }
-                      });
-                      Get.back();
-                      final doc = pw.Document();
-                      url.forEach((element) async {
-                        final img =
-                            await flutterImageProvider(NetworkImage(element));
-                        doc.addPage(pw.Page(build: (pw.Context context) {
-                          return pw.Center(
-                            child: pw.Image(img),
-                          ); // Center
-                        }));
-                      });
-                      await Printing.layoutPdf(
-                          onLayout: (PdfPageFormat format) async => doc.save());
-                      // final pdf = pw.Document();
-                      // final img = await http.get(Uri.parse(url));
-                      // pdf.addPage(pw.Page(build: (pw.Context context) {
-                      //   return pw.Center(
-                      //     child: pw.Image(pw.MemoryImage(img.bodyBytes)),
-                      //   ); // Center
-                      // })); // Page
+                  try {
+                    final FirebaseFirestore _firestore =
+                        FirebaseFirestore.instance;
+                    await _firestore
+                        .collection(controller.user.org)
+                        .doc('prive')
+                        .get()
+                        .then((doc) async {
+                      if (doc.data()['auth'].toString() == pin.text) {
+                        int ran = Random().nextInt(900000) + 100000;
+                        await _firestore
+                            .collection(controller.user.org)
+                            .doc('prive')
+                            .update({"auth": ran});
+                        Get.back();
+                        final doc = pw.Document();
+                        url.forEach((element) async {
+                          final img =
+                              await flutterImageProvider(NetworkImage(element));
+                          doc.addPage(pw.Page(build: (pw.Context context) {
+                            return pw.Center(
+                              child: pw.Image(img),
+                            ); // Center
+                          }));
+                        });
+                        await Printing.layoutPdf(
+                            onLayout: (PdfPageFormat format) async =>
+                                doc.save());
+                      } else {
+                        Get.rawSnackbar(
+                            snackPosition: SnackPosition.TOP,
+                            messageText: Text("Error! Incorrect Pin",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.white)));
+                      }
+                    });
+                    // final pdf = pw.Document();
+                    // final img = await http.get(Uri.parse(url));
+                    // pdf.addPage(pw.Page(build: (pw.Context context) {
+                    //   return pw.Center(
+                    //     child: pw.Image(pw.MemoryImage(img.bodyBytes)),
+                    //   ); // Center
+                    // })); // Page
 
-                    } catch (e) {
-                      Get.rawSnackbar(
-                          snackPosition: SnackPosition.TOP,
-                          messageText: Text("Error! Please Try Again",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.white)));
-                    }
-                  } else {
+                  } catch (e) {
                     Get.rawSnackbar(
                         snackPosition: SnackPosition.TOP,
-                        messageText: Text("Error! Wrong Pin",
+                        messageText: Text("Error! Please Try Again",
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.white)));
                   }

@@ -1,14 +1,9 @@
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
 import 'package:prive/size_config.dart';
 import 'package:prive/widgets/forwardTiles.dart';
-import 'package:prive/widgets/recent_chats.dart';
-import 'package:prive/widgets/sildeToConfirm.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
