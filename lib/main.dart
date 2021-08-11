@@ -48,26 +48,61 @@ class _MyAppState extends State<MyApp> {
   }
 
   versionControl() {
-    if (controller.user.org != null) {
-      FirebaseFirestore.instance
-          .collection("PRIVE")
-          .doc('prive')
-          .snapshots()
-          .listen((snapshots) {
-        if (snapshots.data()["version"] != version) {
-          print(version);
-          print(snapshots.data()["version"]);
-        }
-      });
-    }
+    print("asdasd");
     FirebaseFirestore.instance
         .collection("PRIVE")
         .doc('prive')
         .snapshots()
         .listen((snapshots) {
       if (snapshots.data()["version"] != version) {
-        print(version);
         print(snapshots.data()["version"]);
+        Get.bottomSheet(
+            Container(
+              padding: EdgeInsets.symmetric(vertical: getHeight(20)),
+              height: getHeight(200),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(getText(20)),
+                    topRight: Radius.circular(getText(20))),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: getWidth(300)),
+                    child: Text(
+                      "New Version is Available!! Please Update",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: getText(24)),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      SystemChannels.platform
+                          .invokeMethod('SystemNavigator.pop');
+                    },
+                    child: Container(
+                      height: getHeight(50),
+                      width: getWidth(200),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(getText(10)),
+                          color: MyTheme.kPrimaryColor),
+                      child: Center(
+                        child: Text(
+                          'Ok',
+                          style: GoogleFonts.bebasNeue(
+                              fontSize: getText(30),
+                              letterSpacing: 4,
+                              color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            isDismissible: false);
       }
     });
   }
