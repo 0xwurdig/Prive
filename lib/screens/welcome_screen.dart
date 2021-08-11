@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:encrypt/encrypt.dart' as Enc;
 import 'package:get/get.dart';
 import 'package:prive/screens/set_pin.dart';
 import 'package:prive/size_config.dart';
@@ -17,6 +18,7 @@ class _WelcmScreenState extends State<WelcmScreen> {
   TextEditingController pin = TextEditingController();
   TabController tabController;
   int currentTabIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +61,7 @@ class _WelcmScreenState extends State<WelcmScreen> {
           ),
           GestureDetector(
             onTap: () async {
-              await auth(org.text, name.text.toLowerCase(),
+              await auth(org.text.toLowerCase(), name.text.toLowerCase(),
                           pin.text.toLowerCase()) ==
                       true
                   ? Get.off(() =>
@@ -90,11 +92,6 @@ class _WelcmScreenState extends State<WelcmScreen> {
           ),
         ],
       ),
-
-      // floatingActionButton: FloatingActionButton(
-      //   child: Icon(Icons.login),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -103,7 +100,7 @@ Widget tinput(String a, TextEditingController b) {
   return Container(
       padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
       height: getHeight(80),
-      width: 300,
+      width: getWidth(300),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: getWidth(14)),
         height: getHeight(60),
@@ -112,7 +109,7 @@ Widget tinput(String a, TextEditingController b) {
             bottom: BorderSide(
               //                    <--- top side
               color: Colors.black,
-              width: 3.0,
+              width: getText(3.0),
             ),
           ),
         ),

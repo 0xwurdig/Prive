@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:prive/counterState.dart';
 import 'package:path/path.dart';
-import 'package:prive/screens/pick_image.dart';
 import 'package:prive/size_config.dart';
 import 'package:prive/widgets/conversation.dart';
 import '../app_theme.dart';
@@ -18,7 +17,9 @@ import 'package:flutter/material.dart';
 class ChatRoom extends StatefulWidget {
   final String conversation;
   final function;
-  const ChatRoom({Key key, @required this.conversation, this.function});
+  final owner;
+  const ChatRoom(
+      {Key key, @required this.conversation, this.function, this.owner});
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
@@ -82,6 +83,32 @@ class _ChatRoomState extends State<ChatRoom> {
     });
   }
 
+  Future<void> _pickImage() async {
+    final selected = await ImagePicker().pickImage(
+      imageQuality: 80,
+      source: ImageSource.camera,
+    );
+    if (selected != null) {
+      print(await selected.length());
+      uploadFile(File(selected.path), "");
+      // ImageProperties prop =
+      //     await FlutterNativeImage.getImageProperties(selected.path);
+      // widget.func(File(selected.path));
+      // setState(() {
+      //   image = (File(selected.path));
+      //   imageH = prop.height;
+      //   imageW = prop.width;
+      // });
+    } else {
+      Get.rawSnackbar(
+          backgroundColor: MyTheme.kAccentColor,
+          messageText: Text("No Image Selected",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black)));
+      Get.back();
+    }
+  }
+
   Controller controller = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -141,7 +168,10 @@ class _ChatRoomState extends State<ChatRoom> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
               child: messages != null
-                  ? Conversation(messages: List.from(messages.reversed))
+                  ? Conversation(
+                      conversation: widget.conversation,
+                      messages: List.from(messages.reversed),
+                      owner: widget.owner)
                   : Container(),
             ),
           ),
@@ -172,9 +202,7 @@ class _ChatRoomState extends State<ChatRoom> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Get.to(() => GetImage(
-                                  func: uploadFile,
-                                ));
+                            _pickImage();
                           },
                           child: Icon(
                             Icons.camera_enhance,

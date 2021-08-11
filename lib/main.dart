@@ -1,9 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:memory_checker/memory_checker.dart';
 import 'package:prive/counterState.dart';
 import 'package:prive/screens/login.dart';
 import 'package:prive/screens/welcome_screen.dart';
@@ -11,10 +11,14 @@ import 'package:prive/size_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './app_theme.dart';
 import 'models/user.dart';
+import 'package:package_info/package_info.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseFirestore.instance.settings = Settings(
+    persistenceEnabled: false,
+  );
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
@@ -26,11 +30,81 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool registered = false;
+  String version;
+  String down;
   Controller controller = Get.put(Controller());
   @override
   void initState() {
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+      setState(() {
+        version = packageInfo.version.toString() +
+            "+" +
+            packageInfo.buildNumber.toString();
+      });
+    });
     super.initState();
     getPrefs();
+    versionControl();
+  }
+
+  versionControl() {
+    print("asdasd");
+    FirebaseFirestore.instance
+        .collection("PRIVE")
+        .doc('prive')
+        .snapshots()
+        .listen((snapshots) {
+      if (snapshots.data()["version"] != version) {
+        print(snapshots.data()["version"]);
+        Get.bottomSheet(
+            Container(
+              padding: EdgeInsets.symmetric(vertical: getHeight(20)),
+              height: getHeight(200),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(getText(20)),
+                    topRight: Radius.circular(getText(20))),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: getWidth(300)),
+                    child: Text(
+                      "New Version is Available!! Please Update",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: getText(24)),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      SystemChannels.platform
+                          .invokeMethod('SystemNavigator.pop');
+                    },
+                    child: Container(
+                      height: getHeight(50),
+                      width: getWidth(200),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(getText(10)),
+                          color: MyTheme.kPrimaryColor),
+                      child: Center(
+                        child: Text(
+                          'Ok',
+                          style: GoogleFonts.bebasNeue(
+                              fontSize: getText(30),
+                              letterSpacing: 4,
+                              color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            isDismissible: false);
+      }
+    });
   }
 
   void getPrefs() async {
@@ -55,7 +129,6 @@ class _MyAppState extends State<MyApp> {
           builder: (context, orientation) {
             SizeConfig().init(constraints, orientation);
             return GetMaterialApp(
-              navigatorObservers: [LeakObserver()],
               debugShowCheckedModeBanner: false,
               title: 'Prive',
               theme: ThemeData(
