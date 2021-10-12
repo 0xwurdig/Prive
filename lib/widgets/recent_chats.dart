@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
+import 'package:prive/models/message_model.dart';
 import 'package:prive/screens/chat_room.dart';
 import 'package:prive/size_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../app_theme.dart';
@@ -26,7 +29,7 @@ class _RecentChatsState extends State<RecentChats> {
   Controller controller = Get.find();
   String contact = '';
   String unreadCount;
-  Map message;
+  MsgData message;
   bool loading;
   Color col = Colors.white;
   StreamSubscription streamSubscription;
@@ -43,33 +46,75 @@ class _RecentChatsState extends State<RecentChats> {
     super.dispose();
   }
 
+  String getConversationId(String a, String b) {
+    List<int> ac = a.codeUnits;
+    List<int> bc = b.codeUnits;
+    List<int> qwe = [];
+    for (int i = 0; i < ac.length; i++) {
+      qwe.add(((ac[i] + bc[i]) / 2).round());
+    }
+    return String.fromCharCodes(qwe);
+  }
+
   unReads() async {
+    String conv = getConversationId(widget.conversation, controller.user.id);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     streamSubscription = _firestore
         .collection("${controller.user.org}")
-        .doc('${widget.conversation}')
+        .doc("data")
+        .collection('conversations')
+        .doc(conv)
+        .collection("messages")
+        .orderBy("sent")
         .snapshots()
         .listen((snapshots) async {
-      if (snapshots.data() != null) {
-        if (snapshots.data()['messages'].length != 0 &&
-            message !=
-                snapshots.data()['messages']
-                    [snapshots.data()['messages'].length - 1]) {
-          int c = 0;
-          snapshots.data()['messages'].forEach((msg) {
-            msg['status'] == 0 && msg['from'] != controller.user.name
-                ? c = c + 1
-                : c = c;
-          });
+      if (snapshots.docChanges.length != 0 &&
+          message !=
+              MsgData.fromJson(snapshots
+                  .docChanges[snapshots.docChanges.length - 1].doc
+                  .data())) {
+        int c = 0;
+        snapshots.docChanges.forEach((msg) {
+          msg.doc.data()['status'] == 0 &&
+                  msg.doc.data()['from'] != controller.user.id
+              ? c = c + 1
+              : c = c;
+        });
+        await _firestore
+            .collection("${controller.user.org}")
+            .doc("data")
+            .collection('users')
+            .doc(widget.conversation)
+            .get()
+            .then((value) {
           setState(() {
             unreadCount = c.toString();
-            message = snapshots.data()['messages']
-                [snapshots.data()['messages'].length - 1];
+            message = MsgData.fromJson(snapshots
+                .docChanges[snapshots.docChanges.length - 1].doc
+                .data());
             loading = false;
+            contact = value.data()["name"];
+            prefs.setString(widget.conversation, contact);
           });
-        } else {
-          setState(() {
-            message = null;
+        });
+      } else {
+        try {
+          await _firestore
+              .collection("${controller.user.org}")
+              .doc("data")
+              .collection('users')
+              .doc(widget.conversation)
+              .get()
+              .then((value) {
+            print(value.data());
+            setState(() {
+              message = null;
+              contact = value["name"];
+              prefs.setString(widget.conversation, contact);
+            });
           });
+        } catch (e) {
+          print(e);
         }
       }
     });
@@ -77,16 +122,18 @@ class _RecentChatsState extends State<RecentChats> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.conversation != null) {
-      String contact = widget.conversation.split('-')[0] == controller.user.name
-          ? widget.conversation.split('-')[1]
-          : widget.conversation.split('-')[0];
+    print(contact);
+    if (widget.conversation != null && contact != "") {
+      // String contact = widget.conversation.split('-')[0] == controller.user.id
+      //     ? widget.conversation.split('-')[1]
+      //     : widget.conversation.split('-')[0];
       return GestureDetector(
         onLongPress: () {
-          if (widget.function != null) widget.function(contact);
+          if (widget.function != null) widget.function(widget.conversation);
         },
         onTap: () {
           Get.to(() => ChatRoom(
+                name: contact,
                 owner: widget.owner,
                 conversation: widget.conversation,
                 function: widget.function,
@@ -125,9 +172,7 @@ class _RecentChatsState extends State<RecentChats> {
                           Container(
                             width: getWidth(150),
                             child: Text(
-                              message['type'] == 'txt'
-                                  ? message['body']
-                                  : "Photo",
+                              message.type == 'txt' ? message.body : "Photo",
                               style: MyTheme.bodyText1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -165,8 +210,7 @@ class _RecentChatsState extends State<RecentChats> {
                     ),
                     if (message != null)
                       Text(
-                        DateFormat.Hm().format(DateTime.parse(
-                            message['sent'].toDate().toString())),
+                        DateFormat.Hm().format((message.sent).toDate()),
                         style: MyTheme.bodyTextTime,
                       )
                   ],

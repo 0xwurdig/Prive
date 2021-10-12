@@ -25,7 +25,6 @@ class _HomePageState extends State<HomePage> {
   String pin;
   bool owner = false;
   bool limit = true;
-  bool revoked = false;
   SharedPreferences prefs;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   @override
@@ -39,28 +38,106 @@ class _HomePageState extends State<HomePage> {
     prefs = await SharedPreferences.getInstance();
   }
 
+  String getConversationId(String a, String b) {
+    List<int> ac = a.codeUnits;
+    List<int> bc = b.codeUnits;
+    List<int> qwe = [];
+    for (int i = 0; i < ac.length; i++) {
+      qwe.add(((ac[i] + bc[i]) / 2).round());
+    }
+    return String.fromCharCodes(qwe);
+  }
+
   Future<bool> addContact(String name) async {
-    await _firestore.collection(controller.user.org).doc('prive').update({
-      "users": FieldValue.arrayUnion([name.toLowerCase()])
-    }).catchError((_) {
+    DocumentReference doc = _firestore
+        .collection(controller.user.org)
+        .doc('data')
+        .collection('users')
+        .doc();
+    DocumentReference prive =
+        _firestore.collection(controller.user.org).doc('prive');
+    // await prive.update({
+    //   "users": FieldValue.arrayUnion([doc.id])
+    // });
+    try {
+      _firestore
+          .collection(controller.user.org)
+          .doc('data')
+          .collection('users')
+          .where("name", isEqualTo: name.toLowerCase())
+          .get()
+          .then((snapshot) async => {
+                if (snapshot.docs.length == 0)
+                  {
+                    await doc.set({
+                      "name": name.toLowerCase(),
+                      "id": doc.id,
+                    }).whenComplete(() async {
+                      await prive.update({
+                        "users": FieldValue.arrayUnion([doc.id])
+                      }).whenComplete(() {
+                        print(">>>>>>>");
+                        var x = users;
+                        x.add(controller.user.id);
+                        print(x);
+                        x.forEach((id) async {
+                          if (id != doc.id) {
+                            String conv = getConversationId(doc.id, id);
+                            await _firestore
+                                .collection(controller.user.org)
+                                .doc('data')
+                                .collection('conversations')
+                                .doc(conv)
+                                .set({
+                              "participants": [doc.id, id],
+                            });
+                          }
+                        });
+                      }).onError((error, stackTrace) => print(error));
+                    }).onError((error, stackTrace) => print(error))
+                  }
+              });
+    } catch (e) {
+      print(e);
       return false;
-    });
+    }
     return true;
   }
 
   Future<void> revoke() async {
     try {
       await _firestore.collection(controller.user.org).doc("prive").update({
-        "users": ["${controller.user.name}"]
+        "users": [controller.user.id]
       });
-      await _firestore.collection(controller.user.org).get().then((snapshot) {
-        for (DocumentSnapshot doc in snapshot.docs) {
-          if (doc.reference.toString() !=
-                  "DocumentReference<Map<String, dynamic>>(${controller.user.org}/prive)" &&
-              doc.reference.toString() !=
-                  "DocumentReference<Map<String, dynamic>>(${controller.user.org}/${controller.user.name})")
-            doc.reference.delete();
-        }
+      await _firestore
+          .collection(controller.user.org)
+          .doc("data")
+          .collection("users")
+          .get()
+          .then((snapshots) {
+        snapshots.docs.forEach((element) {
+          element.id != controller.user.id
+              ? element.reference.delete()
+              : element.reference.update({
+                  "fcmToken": FieldValue.delete(),
+                  "publicKey": FieldValue.delete(),
+                });
+        });
+      });
+      await _firestore
+          .collection(controller.user.org)
+          .doc("data")
+          .collection("conversations")
+          .get()
+          .then((snapshots) {
+        snapshots.docs.forEach((snaps) {
+          snaps.reference.collection("messages").get().then((asd) {
+            asd.docs.forEach((dsa) {
+              dsa.reference.delete();
+            });
+          });
+          snaps.reference.delete();
+        });
       });
       final ref = FirebaseStorage.instance.ref("files/${controller.user.org}");
       await ref
@@ -82,79 +159,97 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> deleteContact(String name) async {
+  Future<void> deleteContact(String id) async {
     TextEditingController pin = new TextEditingController();
     Get.bottomSheet(
-      Container(
-        padding: EdgeInsets.symmetric(vertical: getHeight(20)),
-        height: getHeight(300),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(getText(20)),
-              topRight: Radius.circular(getText(20))),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: getWidth(300)),
-              child: Text(
-                "Enter your Security Pin",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: getText(24)),
+      SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: getHeight(20)),
+          height: getHeight(300),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(getText(20)),
+                topRight: Radius.circular(getText(20))),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: getWidth(300)),
+                child: Text(
+                  "Enter your Security Pin",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: getText(24)),
+                ),
               ),
-            ),
-            ninput("Pin", pin, true),
-            ConfirmationSlider(
-              height: getHeight(70),
-              backgroundShape: BorderRadius.circular(getText(10)),
-              width: getWidth(260),
-              foregroundColor: Colors.red[800],
-              foregroundShape: BorderRadius.circular(getText(10)),
-              text: "DELETE",
-              textStyle: TextStyle(fontSize: getText(20)),
-              onConfirmation: () async {
-                if (pin.text == controller.user.pin) {
-                  try {
-                    await _firestore
-                        .collection(controller.user.org)
-                        .doc('prive')
-                        .update({
-                      "users": FieldValue.arrayRemove([name.toLowerCase()])
-                    });
-                    await _firestore
-                        .collection(controller.user.org)
-                        .get()
-                        .then((snapshot) {
-                      for (DocumentSnapshot doc in snapshot.docs) {
-                        if (doc.reference.toString().contains(name))
-                          doc.reference.delete();
-                      }
-                    });
-                    Get.back();
+              ninput("Pin", pin, true),
+              ConfirmationSlider(
+                height: getHeight(70),
+                backgroundShape: BorderRadius.circular(getText(10)),
+                width: getWidth(260),
+                foregroundColor: Colors.red[800],
+                foregroundShape: BorderRadius.circular(getText(10)),
+                text: "DELETE",
+                textStyle: TextStyle(fontSize: getText(20)),
+                onConfirmation: () async {
+                  if (pin.text == controller.user.pin) {
+                    try {
+                      await _firestore
+                          .collection(controller.user.org)
+                          .doc('prive')
+                          .update({
+                        "users": FieldValue.arrayRemove([id])
+                      });
+                      await _firestore
+                          .collection(controller.user.org)
+                          .doc("data")
+                          .collection("users")
+                          .doc(id)
+                          .delete();
+                      await _firestore
+                          .collection(controller.user.org)
+                          .doc("data")
+                          .collection("conversations")
+                          .where("participants", arrayContains: id)
+                          .get()
+                          .then((snapshots) {
+                        snapshots.docs.forEach((snaps) async {
+                          await snaps.reference
+                              .collection("messages")
+                              .get()
+                              .then((asd) {
+                            asd.docs.forEach((dsa) {
+                              dsa.reference.delete();
+                            });
+                          });
+                          snaps.reference.delete();
+                        });
+                      });
+                      Get.back();
+                      Get.rawSnackbar(
+                          snackPosition: SnackPosition.TOP,
+                          messageText: Text("Deleted",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white)));
+                    } catch (e) {
+                      Get.rawSnackbar(
+                          snackPosition: SnackPosition.TOP,
+                          messageText: Text("Error! Please Try Again",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white)));
+                    }
+                  } else {
                     Get.rawSnackbar(
                         snackPosition: SnackPosition.TOP,
-                        messageText: Text("Deleted",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white)));
-                  } catch (e) {
-                    Get.rawSnackbar(
-                        snackPosition: SnackPosition.TOP,
-                        messageText: Text("Error! Please Try Again",
+                        messageText: Text("Error! Wrong Pin",
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.white)));
                   }
-                } else {
-                  Get.rawSnackbar(
-                      snackPosition: SnackPosition.TOP,
-                      messageText: Text("Error! Wrong Pin",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white)));
-                }
-              },
-            )
-          ],
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -168,29 +263,22 @@ class _HomePageState extends State<HomePage> {
         .listen((snapshots) {
       List arr = [];
       snapshots.data()['users'].forEach((user) {
-        List varr = [controller.user.name];
-        if (user != varr[0]) varr.add(user);
-        if (varr.length > 1) {
-          varr.sort();
-          arr.add(varr.join('-'));
-        }
+        if (user != controller.user.id) arr.add(user);
       });
-      if (!snapshots.data()['users'].contains(controller.user.name)) {
+      if (!snapshots.data()['users'].contains(controller.user.id)) {
         prefs.clear();
         SystemChannels.platform.invokeMethod('SystemNavigator.pop');
       } else {
         if (users != arr)
           setState(() {
             users = arr;
-            if (snapshots.data()['users'].length >= snapshots.data()['limit'])
+            if (snapshots.data()['users'].length > snapshots.data()['limit'])
               limit = false;
-            if (snapshots.data()['users'].length <= snapshots.data()['limit'])
+            if (snapshots.data()['users'].length < snapshots.data()['limit'])
               limit = true;
             if (pin != snapshots.data()['auth'])
               pin = snapshots.data()['auth'].toString();
-            if (snapshots.data()['users'][0] == controller.user.name)
-              owner = true;
-            if (snapshots.data()['revoked']) revoked = true;
+            if (snapshots.data()['owner'] == controller.user.id) owner = true;
           });
       }
     }).onError((_) {
@@ -262,7 +350,7 @@ class _HomePageState extends State<HomePage> {
             ),
             GestureDetector(
               onTap: () async {
-                if (!revoked && users.length > 0) {
+                if (users.length > 0) {
                   Get.back();
                   Get.bottomSheet(
                     Container(
@@ -313,7 +401,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
               },
-              child: !revoked && users.length > 0
+              child: users.length > 0
                   ? Container(
                       height: getHeight(80),
                       width: getWidth(200),
@@ -344,7 +432,7 @@ class _HomePageState extends State<HomePage> {
                           border:
                               Border.all(color: Colors.grey[500], width: 5)),
                       child: Center(
-                        child: Text("REVOKED",
+                        child: Text("NO DATA",
                             style: TextStyle(
                                 color: Colors.grey[500],
                                 fontSize: getText(30),
@@ -424,11 +512,38 @@ class _HomePageState extends State<HomePage> {
                                     BorderRadius.circular(getText(10)),
                                 text: "Log Out",
                                 textStyle: TextStyle(fontSize: getText(20)),
-                                onConfirmation: () {
+                                onConfirmation: () async {
                                   if (name.text == controller.user.pin) {
-                                    prefs.clear();
-                                    SystemChannels.platform
-                                        .invokeMethod('SystemNavigator.pop');
+                                    await _firestore
+                                        .collection(controller.user.org)
+                                        .doc('data')
+                                        .collection('users')
+                                        .doc(controller.user.id)
+                                        .update({
+                                      "privateKey": controller.user.privateKey
+                                    }).whenComplete(() async {
+                                      if (owner) {
+                                        await _firestore
+                                            .collection(controller.user.org)
+                                            .doc('prive')
+                                            .update({
+                                          "logout": true,
+                                        }).whenComplete(() {
+                                          prefs.clear();
+                                          SystemChannels.platform.invokeMethod(
+                                              'SystemNavigator.pop');
+                                        });
+                                      } else {
+                                        prefs.clear();
+                                        SystemChannels.platform.invokeMethod(
+                                            'SystemNavigator.pop');
+                                      }
+                                    }).catchError((_) => Get.rawSnackbar(
+                                            messageText: Text(
+                                                "Error! Please Try Again Later",
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: Colors.black))));
                                   } else {
                                     Get.rawSnackbar(
                                         snackPosition: SnackPosition.TOP,
@@ -554,6 +669,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget chat(List users) {
+    // print(users);
     return users.length > 0
         ? ListView(
             children: users.map((e) {

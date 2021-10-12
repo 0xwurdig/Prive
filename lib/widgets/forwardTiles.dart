@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
 import 'package:prive/size_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../app_theme.dart';
@@ -25,12 +26,16 @@ class _ForwardTilesState extends State<ForwardTiles> {
     super.initState();
   }
 
+  gePrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      contact = prefs.getString(widget.conversation).camelCase;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.conversation != null) {
-      String contact = widget.conversation.split('-')[0] == controller.user.name
-          ? widget.conversation.split('-')[1]
-          : widget.conversation.split('-')[0];
       return Container(
           margin: EdgeInsets.symmetric(
               horizontal: getWidth(15), vertical: getHeight(15)),

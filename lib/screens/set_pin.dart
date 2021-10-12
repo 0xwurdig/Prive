@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 class SetPin extends StatefulWidget {
   final org;
   final name;
-  SetPin({@required this.org, @required this.name});
+  final id;
+  SetPin({@required this.org, @required this.name, @required this.id});
   @override
   _SetPinState createState() => _SetPinState();
 }
@@ -92,12 +93,17 @@ class _SetPinState extends State<SetPin> {
             onTap: () async {
               if (pin1.text.length > 3 && pin2.text.length > 3) {
                 bool a = await setPin(
-                    pin: pin2.text, name: widget.name, org: widget.org);
-                await prefs
-                    .setStringList("det", [widget.org, widget.name, pin2.text]);
+                    pin: pin2.text,
+                    name: widget.name,
+                    org: widget.org,
+                    userId: widget.id);
+                await prefs.setStringList(
+                    "det", [widget.org, widget.name, pin2.text, widget.id]);
                 user.org = prefs.getStringList("det")[0];
                 user.name = prefs.getStringList("det")[1];
                 user.pin = prefs.getStringList("det")[2];
+                user.id = prefs.getStringList("det")[3];
+                // user.privateKey = prefs.getStringList("det")[4];
                 controller.add(user);
                 pin1.text == pin2.text
                     ? a
@@ -178,16 +184,19 @@ Widget tinput(String a, TextEditingController b) {
       ));
 }
 
-Future<bool> setPin({String pin, String org, String name}) async {
-  bool success;
+Future<bool> setPin(
+    {String pin, String org, String name, String userId}) async {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  await _firestore
-      .collection(org)
-      .doc(name)
-      .set({"pin": pin}, SetOptions(merge: true)).whenComplete(() {
-    success = true;
-  }).catchError((e) {
-    success = false;
+  DocumentReference newUser =
+      _firestore.collection(org).doc("data").collection("users").doc(userId);
+  await newUser.set({
+    "fcmToken": "asdasdsadasd",
+    "id": newUser.id,
+    "publicKey": "qweqweqwewqeqweqwe",
+    "pin": pin,
+    "name": name
+  }, SetOptions(merge: true)).catchError((e) {
+    return false;
   });
-  return success;
+  return true;
 }

@@ -16,7 +16,7 @@
 //   // print(decrypted);
 //   Map msg = {
 //     "body": text.text,
-//     "sent": Timestamp.now(),
+//     "sent": FieldValue.serverTimestamp(),
 //     "type": "txt",
 //     "from": name
 //   };

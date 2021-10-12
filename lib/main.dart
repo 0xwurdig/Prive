@@ -31,7 +31,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool registered = false;
   String version;
-  String down;
   Controller controller = Get.put(Controller());
   @override
   void initState() {
@@ -48,7 +47,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   versionControl() {
-    print("asdasd");
     FirebaseFirestore.instance
         .collection("PRIVE")
         .doc('prive')
@@ -114,6 +112,8 @@ class _MyAppState extends State<MyApp> {
       user.org = prefs.getStringList("det")[0];
       user.name = prefs.getStringList("det")[1];
       user.pin = prefs.getStringList("det")[2];
+      user.id = prefs.getStringList("det")[3];
+      // user.privateKey = prefs.getStringList("det")[4];
       controller.add(user);
       setState(() {
         registered = true;

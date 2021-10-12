@@ -35,7 +35,9 @@ class _LogInState extends State<LogIn> {
       prefs = await SharedPreferences.getInstance();
       var doc = await _firestore
           .collection("${controller.user.org}")
-          .doc("${controller.user.name}")
+          .doc("data")
+          .collection("users")
+          .doc("${controller.user.id}")
           .get();
       if (doc.data() != null) {
         setState(() {

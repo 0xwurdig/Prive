@@ -39,6 +39,7 @@ dependencies:
   photo_view:
   printing:
   pdf:
+  ntp:
 dev_dependencies:
   flutter_launcher_icons:
   flutter_test:

@@ -56,8 +56,8 @@ class ConfirmationSlider extends StatefulWidget {
       this.textStyle,
       @required this.onConfirmation,
       this.foregroundShape,
-      this.backgroundShape})
-      : assert(height >= 25 && width >= 250);
+      this.backgroundShape});
+  // : assert(height >= getHeight(25) && width >= getWidth(250));
 
   @override
   State<StatefulWidget> createState() {

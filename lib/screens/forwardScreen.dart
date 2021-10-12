@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:prive/counterState.dart';
+import 'package:prive/models/message_model.dart';
 import 'package:prive/size_config.dart';
 import 'package:prive/widgets/forwardTiles.dart';
 import '../app_theme.dart';
@@ -9,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ForwardScreen extends StatefulWidget {
-  final List messages;
+  final List<MsgData> messages;
   final String conversation;
   ForwardScreen({this.messages, this.conversation});
   @override
@@ -21,7 +24,6 @@ class _ForwardScreenState extends State<ForwardScreen> {
   Controller controller = Get.find();
   List users = [];
   List<String> forwardTo = [];
-  String from;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   @override
   void initState() {
@@ -29,24 +31,34 @@ class _ForwardScreenState extends State<ForwardScreen> {
     super.initState();
   }
 
+  String getConversationId(String a, String b) {
+    List<int> ac = a.codeUnits;
+    List<int> bc = b.codeUnits;
+    List<int> qwe = [];
+    for (int i = 0; i < ac.length; i++) {
+      qwe.add(((ac[i] + bc[i]) / 2).round());
+    }
+    return String.fromCharCodes(qwe);
+  }
+
   Future send() async {
-    forwardTo.forEach((conversation) {
+    forwardTo.forEach((conversation) async {
       try {
-        try {
-          _firestore
-              .collection("${controller.user.org}")
-              .doc('$conversation')
-              .update({
-            "messages": FieldValue.arrayUnion(widget.messages),
+        DocumentReference doc = _firestore
+            .collection("${controller.user.org}")
+            .doc("data")
+            .collection("conversations")
+            .doc(getConversationId(conversation, controller.user.id));
+        doc.get().then((value) {
+          widget.messages.forEach((msg) async {
+            DocumentReference doc1 = doc.collection("messages").doc();
+            msg.id = doc1.id;
+            msg.forwarded.add(conversation);
+            msg.from = controller.user.id;
+            msg.status = 0;
+            await doc1.set(msg.toJson());
           });
-        } catch (e) {
-          _firestore
-              .collection("${controller.user.org}")
-              .doc('$conversation')
-              .set({
-            "messages": widget.messages,
-          });
-        }
+        });
       } on FirebaseException catch (e) {
         Get.rawSnackbar(
             backgroundColor: MyTheme.kAccentColor,
@@ -64,17 +76,13 @@ class _ForwardScreenState extends State<ForwardScreen> {
         .snapshots()
         .listen((snapshots) {
       List arr = [];
-      snapshots.data()['users'].forEach((user) {
-        List varr = [controller.user.name];
-        if (user != varr[0]) varr.add(user);
-        if (varr.length > 1) {
-          varr.sort();
-          arr.add(varr.join('-'));
+      snapshots.data()["users"].forEach((user) {
+        if (user != controller.user.id) {
+          arr.add(user);
         }
       });
       if (users != arr)
         setState(() {
-          from = widget.messages[0]["from"];
           users = arr;
         });
     }).onError((_) {
@@ -145,7 +153,7 @@ class _ForwardScreenState extends State<ForwardScreen> {
   }
 
   Widget chat(List users) {
-    users.remove(widget.conversation);
+    // users.remove(widget.conversation);
     return ListView(
       children: users.map((e) {
         // if (e != widget.conversation)

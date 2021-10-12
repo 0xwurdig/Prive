@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "475154760197",
+    "project_id": "whyapp-40f8d",
+    "storage_bucket": "whyapp-40f8d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475154760197:android:40636b238885d00b21926c",
+        "android_client_info": {
+          "package_name": "xyz.wurdigmich.prive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "475154760197-0dicjf0a2k05244c91a6tf3e9ecukov6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIrlj1ElIEVyuCW751sRWtB_3THQ0pbKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "475154760197-0dicjf0a2k05244c91a6tf3e9ecukov6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

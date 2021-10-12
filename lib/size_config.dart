@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,15 +20,16 @@ class SizeConfig {
     if (orientation == Orientation.portrait) {
       w = 411.4;
       h = 684.4;
-
-      textFactor = Get.textScaleFactor;
-      screenWidth = constraints.maxWidth > 411.4
-          ? constraints.maxWidth / 411.4
-          : textFactor;
-      screenHeight = constraints.maxHeight > 684.4
-          ? constraints.maxHeight / 684.4
-          : textFactor;
+      print(constraints.maxWidth);
+      print(constraints.maxHeight);
+      // textFactor = Get.textScaleFactor;
+      screenWidth = constraints.maxWidth / 411.4;
+      screenHeight = constraints.maxHeight / 684.4;
+      textFactor = min(screenHeight, screenWidth);
       isPortrait = true;
+      print(screenHeight);
+      print(screenWidth);
+      print(textFactor);
     }
     // } else {
     //   w = 684.4/100;

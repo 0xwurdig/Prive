@@ -61,11 +61,11 @@ class _WelcmScreenState extends State<WelcmScreen> {
           ),
           GestureDetector(
             onTap: () async {
-              await auth(org.text.toLowerCase(), name.text.toLowerCase(),
-                          pin.text.toLowerCase()) ==
-                      true
-                  ? Get.off(() =>
-                      SetPin(org: org.text, name: name.text.toLowerCase()))
+              String id = await auth(org.text.toLowerCase(),
+                  name.text.toLowerCase(), pin.text.toLowerCase());
+              id != ""
+                  ? Get.off(() => SetPin(
+                      org: org.text, name: name.text.toLowerCase(), id: id))
                   : Get.rawSnackbar(
                       backgroundColor: MyTheme.kAccentColorVariant,
                       messageText: Text("Error! Credentials do not match!",
@@ -100,7 +100,7 @@ Widget tinput(String a, TextEditingController b) {
   return Container(
       padding: EdgeInsets.symmetric(horizontal: getWidth(20)),
       height: getHeight(80),
-      width: getWidth(300),
+      width: getWidth(350),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: getWidth(14)),
         height: getHeight(60),
@@ -126,19 +126,37 @@ Widget tinput(String a, TextEditingController b) {
       ));
 }
 
-Future<bool> auth(String org, name, pin) async {
-  bool success;
+Future<String> auth(String org, name, pin) async {
+  String id;
   // final prefs = await SharedPreferences.getInstance();
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  await _firestore.collection(org).doc('prive').get().then((doc) {
-    if (doc.data()['users'].contains(name) &&
-        doc.data()['auth'].toString() == pin) {
-      success = true;
-      int ran = Random().nextInt(900000) + 100000;
-      _firestore.collection(org).doc('prive').update({"auth": ran});
-    } else {
-      success = false;
-    }
-  });
-  return success;
+  try {
+    await _firestore
+        .collection(org)
+        .doc('data')
+        .collection("users")
+        .where("name", isEqualTo: name)
+        .get()
+        .then((doc) async {
+      doc.docs.length != 0
+          ? await _firestore.collection(org).doc("prive").get().then((a) async {
+              print(a.data());
+              if (a.data()['auth'].toString() == pin) {
+                id = doc.docs[0].id;
+                int ran = Random().nextInt(900000) + 100000;
+                await _firestore
+                    .collection(org)
+                    .doc('prive')
+                    .update({"auth": ran});
+              } else {
+                id = "";
+              }
+            })
+          : id = "";
+    });
+    return id;
+  } catch (e) {
+    print(e);
+  }
 }
