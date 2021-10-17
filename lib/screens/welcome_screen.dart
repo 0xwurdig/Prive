@@ -65,7 +65,9 @@ class _WelcmScreenState extends State<WelcmScreen> {
                   name.text.toLowerCase(), pin.text.toLowerCase());
               id != ""
                   ? Get.off(() => SetPin(
-                      org: org.text, name: name.text.toLowerCase(), id: id))
+                      org: org.text.toLowerCase(),
+                      name: name.text.toLowerCase(),
+                      id: id))
                   : Get.rawSnackbar(
                       backgroundColor: MyTheme.kAccentColorVariant,
                       messageText: Text("Error! Credentials do not match!",
