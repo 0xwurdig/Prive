@@ -116,6 +116,7 @@ Widget tinput(String a, TextEditingController b) {
           ),
         ),
         child: TextField(
+          keyboardType: a == "PIN" ? TextInputType.number : TextInputType.text,
           textAlign: TextAlign.center,
           controller: b,
           style: TextStyle(fontSize: getText(30), letterSpacing: 5),

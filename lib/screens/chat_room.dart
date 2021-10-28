@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -206,8 +205,8 @@ class _ChatRoomState extends State<ChatRoom> {
                 widget.function != null
                     ? GestureDetector(
                         onTap: () {
-                          Get.back();
                           widget.function(contact);
+                          // Get.back();
                         },
                         child: Icon(
                           Icons.delete_outline,

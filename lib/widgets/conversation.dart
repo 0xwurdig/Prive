@@ -9,6 +9,7 @@ import 'package:prive/screens/forwardScreen.dart';
 import 'package:prive/screens/welcome_screen.dart';
 import 'package:prive/size_config.dart';
 import 'package:prive/widgets/sildeToConfirm.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -31,6 +32,7 @@ class Conversation extends StatefulWidget {
 }
 
 class _ConversationState extends State<Conversation> {
+  SharedPreferences prefs;
   TextEditingController pin = new TextEditingController();
   // String current = DateFormat.MMMEd().format(DateTime.now());
   Controller controller = Get.find();
@@ -44,6 +46,18 @@ class _ConversationState extends State<Conversation> {
   //         : range = widget.messages.length;
   //   });
   // }
+  @override
+  initState() {
+    getPrefs();
+    super.initState();
+  }
+
+  getPrefs() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      prefs = pref;
+    });
+  }
 
   infoPrint(List<String> url) async {
     if (!widget.owner) {
@@ -497,7 +511,10 @@ class _ConversationState extends State<Conversation> {
                                 style: MyTheme.bodyTextMessage.copyWith(
                                     fontSize: getText(20),
                                     color: Colors.black)),
-                            Text("From : ${forwardList[0].from}",
+                            Text(
+                                forwardList[0].from == controller.user.id
+                                    ? "From : You"
+                                    : "From : ${prefs.getString(forwardList[0].from)}",
                                 style: MyTheme.bodyTextMessage.copyWith(
                                     fontSize: getText(20),
                                     color: Colors.black)),

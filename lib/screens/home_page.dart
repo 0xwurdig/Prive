@@ -716,6 +716,7 @@ Widget ninput(String a, TextEditingController b, bool obscure) {
         ),
         child: Center(
           child: TextField(
+            keyboardType: obscure ? TextInputType.number : TextInputType.text,
             obscureText: obscure ? true : false,
             obscuringCharacter: "#",
             textAlign: TextAlign.center,
